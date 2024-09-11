@@ -1,0 +1,39 @@
+{
+    "name": "pst/database",
+    "description": "PST (Peyton, Stacy, Timber) Database",
+    "type": "library",
+    "license": "MIT",
+    "version": "7.4.33",
+    "autoload": {
+        "psr-4": {
+            "PST\\Database\\Tests\\": "tests/",
+            "Pst\\Database\\": "src/"
+        },
+        "files": [
+            "src/helper_functions.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Jason Thompson"
+        }
+    ],
+    "repositories":  [
+        {
+            "type": "path",
+            "url": "../core"
+        },
+        {
+            "type": "path",
+            "url": "../testing"
+        }
+    ],
+
+    "minimum-stability": "dev",
+
+    "require": {
+        "php": ">=7.4,<8.0",
+        "pst/core": "*",
+        "pst/testing": "*"
+    }
+}
