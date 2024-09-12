@@ -20,7 +20,7 @@ class Select extends Clause implements ISelect {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(ISelectExpression::class);
+        return Type::new(ISelectExpression::class);
     }
 
     public static function new(...$expressions): self {

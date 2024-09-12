@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pst\Database\Traits;
 
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 
@@ -238,7 +238,7 @@ trait TableRecordTrait {
      * @return IEnumerable The columns of the table.
      */
     public static function columns(): IEnumerable {
-        return Enumerator::new(self::tableRecordTraitColumns(), TypeHint::fromTypeNames(Column::class));
+        return Enumerator::new(self::tableRecordTraitColumns(), TypeHintFactory::tryParse(Column::class));
     }
     
     /**
@@ -247,7 +247,7 @@ trait TableRecordTrait {
      * @return IEnumerable The indexes of the table.
      */
     public static function indexes(): IEnumerable {
-        return Enumerator::new(self::tableRecordTraitIndexes(), TypeHint::fromTypeNames(Index::class));
+        return Enumerator::new(self::tableRecordTraitIndexes(), TypeHintFactory::tryParse(Index::class));
     }
 
     /**

@@ -19,7 +19,7 @@ class Offset extends Clause implements IOffset {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IOffsetExpression::class);
+        return Type::new(IOffsetExpression::class);
     }
 
     public static function new($expression): self {
@@ -55,11 +55,11 @@ Offset::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->value . " ";
+                return ":p" . $this->getObjectId();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return ["p" . $this->getObjectId() => $this->value];
             }
         };
     }

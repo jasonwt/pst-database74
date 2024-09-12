@@ -8,7 +8,7 @@ use Closure;
 
 use Pst\Core\Func;
 use Pst\Core\IToString;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 
 use Pst\Database\Structure\Column;
 use Pst\Database\Structure\Table;

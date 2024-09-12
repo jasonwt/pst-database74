@@ -30,7 +30,7 @@ class OrderBy extends Clause implements IOrderBy {
      * @return Type
      */
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IOrderByExpression::class);
+        return Type::new(IOrderByExpression::class);
     }
 
     /**

@@ -19,7 +19,7 @@ class Limit extends Clause implements ILimit {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(ILimitExpression::class);
+        return Type::new(ILimitExpression::class);
     }
 
     public static function new($expression): self {
@@ -55,11 +55,11 @@ Limit::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->value . " ";
+                return ":p" . $this->getObjectId();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return ["p" . $this->getObjectId() => $this->value];
             }
         };
     }

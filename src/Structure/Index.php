@@ -16,7 +16,7 @@ use InvalidArgumentException;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 use Pst\Core\Exceptions\LogicException;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 
 class Index extends CoreObject {
     private string $schemaName;
@@ -73,6 +73,6 @@ class Index extends CoreObject {
     }
 
     public function columns(): IEnumerable {
-        return Enumerator::new($this->columns, TypeHint::string());
+        return Enumerator::new($this->columns, TypeHintFactory::string());
     }
 }

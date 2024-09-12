@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\Structure;
 
 use Pst\Core\CoreObject;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 

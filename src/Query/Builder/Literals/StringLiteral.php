@@ -39,11 +39,11 @@ class StringLiteral extends CoreObject implements IStringLiteral {
     }
 
     public function getQuerySql(): string {
-        return (string) $this;
+        return ":p" . $this->getObjectId();
     }
 
     public function getQueryParameters(): array {
-        return [];
+        return ["p" . $this->getObjectId() => $this->value];
     }
 
     public static function tryParse(string $value): ?StringLiteral {
@@ -64,6 +64,7 @@ class StringLiteral extends CoreObject implements IStringLiteral {
     }
 
     public function __toString(): string {
+        throw new \Exception("Not implemented");
         return "'" . $this->value . "'" . ($this->alias !== null ? " AS " . $this->alias : "");
     }
 }

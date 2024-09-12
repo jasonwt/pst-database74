@@ -32,7 +32,7 @@ trait TableRecordTrait {
                 if ($columnDefaultValue->value() == "NULL") {
                     $columnDefaultValue = "null";
                 } else if ($columnDefaultValue->value() == "NONE") {
-                    $columnDefaultValue = $columnIsNullable ? null : Type::fromTypeName($columnType->fullName())->defaultValue();
+                    $columnDefaultValue = $columnIsNullable ? null : Type::typeOf($columnType->fullName())->defaultValue();
                 } else {
                     $columnDefaultValue = "ColumnDefaultValue::" . $columnDefaultValue->value() . "()";
                 }

@@ -79,7 +79,7 @@ class Having extends Clause implements IHaving {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IHavingExpression::class);
+        return Type::new(IHavingExpression::class);
     }
 
     public static function new(...$expressions): self {
@@ -130,11 +130,11 @@ Having::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };
     }
@@ -172,11 +172,11 @@ Having::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };
     }
@@ -230,11 +230,11 @@ Having::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };        
     }

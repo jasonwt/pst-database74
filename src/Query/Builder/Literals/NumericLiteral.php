@@ -20,11 +20,12 @@ class NumericLiteral extends CoreObject implements INumericLiteral {
     }
 
     public function getQuerySql(): string {
-        return (string) $this;
+        return ":p" . $this->getObjectId();
+        //return (string) $this;
     }
 
     public function getQueryParameters(): array {
-        return [];
+        return ["p" . $this->getObjectId() => $this->value];
     }
 
     public static function tryParse(string $value): ?NumericLiteral {
@@ -48,6 +49,8 @@ class NumericLiteral extends CoreObject implements INumericLiteral {
     }
 
     public function __toString(): string {
+        throw new \Exception("Not implemented");
+        echo "ASDFASDF";
         return (string)$this->value;
     }
 }

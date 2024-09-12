@@ -26,7 +26,7 @@ class GroupBy extends Clause implements IGroupBy {
      * @return Type
      */
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IGroupByExpression::class);
+        return Type::new(IGroupByExpression::class);
     }
 
     /**

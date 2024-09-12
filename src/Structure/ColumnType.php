@@ -9,7 +9,7 @@ use Pst\Core\IEnum;
 
 use InvalidArgumentException;
 use Pst\Core\Exceptions\NotImplementedException;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 
 class ColumnType extends Enum {
     public static function cases(): array {
@@ -403,7 +403,7 @@ class ColumnType extends Enum {
             $typeHintString = '?' . $typeHintString;
         }
 
-        return TypeHint::fromTypeNames($typeHintString);
+        return TypeHintFactory::tryParse($typeHintString);
     }
 
     public function toPhpType(bool $isNullable = false): string {

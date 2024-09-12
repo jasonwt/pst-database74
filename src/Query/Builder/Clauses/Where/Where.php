@@ -79,7 +79,7 @@ class Where extends Clause implements IWhere {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IWhereExpression::class);
+        return Type::new(IWhereExpression::class);
     }
 
     public static function new(...$expressions): self {
@@ -130,11 +130,11 @@ Where::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };
     }
@@ -172,11 +172,11 @@ Where::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };
     }
@@ -200,7 +200,7 @@ Where::registerExpressionConstructor(
         $pattern = $leftOperandPattern . $operatorPattern . $rightOperandPattern . "\s*\$";
 
         if (preg_match("/^" . $pattern . "\s*\$/i", $string, $matches)) {
-            print_r($matches);
+            
 
             $leftOperand = ($matches[1][0] === "'" || $matches[1][0] === '"') ? StringLiteral::new($matches[1]) : NumericLiteral::new((float) $matches[1]);
             $operator = ComparisonOperator::tryFrom($matches[2]);
@@ -230,11 +230,11 @@ Where::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand . " " . $this->operator . " " . $this->rightOperand;
+                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return [];
+                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
             }
         };        
     }

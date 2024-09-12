@@ -20,7 +20,7 @@ class From extends Clause implements IFrom {
     }
 
     public static function getExpressionInterfaceType(): Type {
-        return Type::fromTypeName(IFromExpression::class);
+        return Type::new(IFromExpression::class);
     }
 
     public static function new(...$expressions): self {

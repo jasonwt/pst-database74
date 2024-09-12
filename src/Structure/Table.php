@@ -15,7 +15,7 @@ use Pst\Database\Validator;
 
 use Pst\Core\Collections\ReadOnlyCollection;
 use Pst\Core\Collections\IReadOnlyCollection;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 
 class Table extends CoreObject {
     private string $schemaName;

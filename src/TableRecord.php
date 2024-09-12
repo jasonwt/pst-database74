@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database;
 
 use Pst\Core\CoreObject;
-use Pst\Core\Types\TypeHint;
+use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Collections\IEnumerable;
 use Pst\Core\Collections\IReadOnlyCollection;
 use Pst\Core\Collections\ReadOnlyCollection;
@@ -27,6 +27,6 @@ abstract class TableRecord extends CoreObject implements ITableRecord {
     }
 
     public static function columns(): IReadOnlyCollection {
-        return self::$columns ??= new ReadOnlyCollection(self::implColumns(), TypeHint::fromTypeNames(Column::class));
+        return self::$columns ??= new ReadOnlyCollection(self::implColumns(), TypeHintFactory::tryParse(Column::class));
     }
 }
