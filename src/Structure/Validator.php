@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database;
+namespace Pst\Database\Structure;
 
 use Closure;
 
 use Pst\Core\IToString;
 
 use Pst\Database\Enums\ColumnType;
-use Pst\Database\Structure\Column;
-use Pst\Database\Structure\Table;
+use Pst\Database\Structure\Column\Column;
+use Pst\Database\Structure\Table\Table;
 
 use Pst\Core\Exceptions\NotImplementedException;
 

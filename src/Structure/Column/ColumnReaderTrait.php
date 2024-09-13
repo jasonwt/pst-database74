@@ -2,13 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure\Readers\Traits;
+namespace Pst\Database\Structure\Column;
 
 use Pst\Core\Collections\IEnumerable;
 
-use Pst\Database\Validator;
-
-use Pst\Database\Structure\Column;
+use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 

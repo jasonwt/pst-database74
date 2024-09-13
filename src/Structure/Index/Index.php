@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure;
+namespace Pst\Database\Structure\Index;
 
 use Pst\Core\CoreObject;
 use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 
-use Pst\Database\Validator;
 use Pst\Database\Enums\IndexType;
+use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 

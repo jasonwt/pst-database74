@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure\Readers;
+namespace Pst\Database\Structure\Schema;
 
-use Pst\Database\Structure\Readers\Traits\TableReaderTrait;
+use Pst\Database\Structure\Table\TableReaderTrait;
 
 abstract class SchemaReader implements ISchemaReader {
     use TableReaderTrait;

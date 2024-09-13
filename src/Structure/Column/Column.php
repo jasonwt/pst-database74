@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure;
+namespace Pst\Database\Structure\Column;
 
 use Pst\Core\CoreObject;
 
-use Pst\Database\Validator;
 use Pst\Database\Enums\IndexType;
 use Pst\Database\Enums\ColumnType;
 use Pst\Database\Enums\ColumnDefaultValue;
+use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 

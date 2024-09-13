@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure\Readers;
+namespace Pst\Database\Structure\Index;
 
 use Pst\Core\Collections\IEnumerable;
-
-use Pst\Database\Structure\Index;
 
 interface IIndexReader {
     public function ReadIndexes(string $schemaName, string $tableName): IEnumerable;

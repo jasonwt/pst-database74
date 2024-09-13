@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure\Readers;
+namespace Pst\Database\Structure\Column;
 
 use Pst\Core\Collections\IEnumerable;
-
-use Pst\Database\Structure\Column;
 
 interface IColumnReader {
     public function ReadColumns(string $schemaName, string $tableName): IEnumerable;

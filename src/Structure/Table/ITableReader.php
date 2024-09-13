@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Structure\Readers;
+namespace Pst\Database\Structure\Table;
 
 use Pst\Core\Collections\IEnumerable;
 
-use Pst\Database\Structure\Table;
+use Pst\Database\Structure\Column\IColumnReader;
 
 interface ITableReader extends IColumnReader, IIndexReader {
     public function readTables(string $schemaName): IEnumerable;
