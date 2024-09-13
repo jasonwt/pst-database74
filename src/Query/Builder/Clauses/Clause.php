@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\Query\Builder\Clauses;
 
 use Pst\Core\CoreObject;
-use Pst\Database\Query\Builder\IGetQueryParts;
+use Pst\Database\Query\IQueryable;
 
 abstract class Clause extends CoreObject implements IClause {
     private array $expressions = [];
@@ -18,8 +18,8 @@ abstract class Clause extends CoreObject implements IClause {
                 throw new \Exception("Invalid expression: $expression");
             }
 
-            if (!$constructedExpression instanceof IGetQueryParts) {
-                throw new \Exception("Expression must implement IGetQueryParts");
+            if (!$constructedExpression instanceof IQueryable) {
+                throw new \Exception("Expression must implement IQueryable");
             }
 
             return $constructedExpression;

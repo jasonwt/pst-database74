@@ -7,18 +7,19 @@ namespace Pst\Database\Query\Builder\Clauses\Where;
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
 
-use Pst\Database\PregPatterns;
+use Pst\Database\Preg;
+use Pst\Database\Query\Literals\NumericLiteral;
+use Pst\Database\Query\Literals\StringLiteral;
+use Pst\Database\Query\Identifiers\ColumnIdentifier;
 use Pst\Database\Query\Builder\Clauses\Clause;
-use Pst\Database\Query\Builder\Clauses\Enums\ComparisonOperator;
-use Pst\Database\Query\Builder\Clauses\Traits\ExpressionsTrait;
-use Pst\Database\Query\Builder\Identifiers\ColumnIdentifier;
-use Pst\Database\Query\Builder\Literals\NumericLiteral;
-use Pst\Database\Query\Builder\Literals\StringLiteral;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
+use Pst\Database\Query\Enums\ComparisonOperator;
 
 use InvalidArgumentException;
 
+
 class Where extends Clause implements IWhere {
-    use ExpressionsTrait;
+    use ClauseExpressionsTrait;
 
     public function getQuerySql(): string {
         if ($this->querySql !== null) {
@@ -36,7 +37,7 @@ class Where extends Clause implements IWhere {
                 }
             }
 
-            return $returnValue . $expression->getQuerySql();
+            return rtrim($returnValue . $expression->getQuerySql()) . " ";
         }, $this->getExpressions(), array_keys($this->getExpressions()));
 
         $sql = count($expressionsSql) > 1 ? "(" . rtrim(implode(" ", $expressionsSql)) . ")" : $expressionsSql[0];
@@ -105,7 +106,7 @@ Where::registerExpressionConstructor(
             return null;
         }
 
-        $operandPattern = PregPatterns::COLUMN_IDENTIFIER_PATTERN;
+        $operandPattern = Preg::COLUMN_IDENTIFIER_PATTERN;
         $operatorPattern = "(?:" . ComparisonOperator::getPregMatchPattern() . ")";
 
         $pattern = $operandPattern . $operatorPattern . $operandPattern . "\s*\$";
@@ -147,7 +148,7 @@ Where::registerExpressionConstructor(
             return null;
         }
 
-        $operandPattern = "(" . PregPatterns::SINGLE_QUOTED_STRING_PATTERN . "|" . PregPatterns::DOUBLE_QUOTED_STRING_PATTERN . "|" . PregPatterns::NUMERIC_PATTERN . ")\s*";
+        $operandPattern = "(" . Preg::SINGLE_QUOTED_STRING_PATTERN . "|" . Preg::DOUBLE_QUOTED_STRING_PATTERN . "|" . Preg::NUMERIC_PATTERN . ")\s*";
         $operatorPattern = "(?:" . ComparisonOperator::getPregMatchPattern() . ")";
 
         $pattern = $operandPattern . $operatorPattern . $operandPattern . "\s*\$";
@@ -189,8 +190,8 @@ Where::registerExpressionConstructor(
             return null;
         }
 
-        $leftOperandPattern = "(" . PregPatterns::SINGLE_QUOTED_STRING_PATTERN . "|" . PregPatterns::DOUBLE_QUOTED_STRING_PATTERN . "|" . PregPatterns::NUMERIC_PATTERN . ")\s*";
-        $rightOperandPattern = PregPatterns::COLUMN_IDENTIFIER_PATTERN;
+        $leftOperandPattern = "(" . Preg::SINGLE_QUOTED_STRING_PATTERN . "|" . Preg::DOUBLE_QUOTED_STRING_PATTERN . "|" . Preg::NUMERIC_PATTERN . ")\s*";
+        $rightOperandPattern = Preg::COLUMN_IDENTIFIER_PATTERN;
         $operatorPattern = "(?:" . ComparisonOperator::getPregMatchPattern() . ")";
 
         $leftOperand = null;

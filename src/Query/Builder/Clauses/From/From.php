@@ -7,11 +7,11 @@ namespace Pst\Database\Query\Builder\Clauses\From;
 use Pst\Core\Types\Type;
 
 use Pst\Database\Query\Builder\Clauses\Clause;
-use Pst\Database\Query\Builder\Clauses\Traits\ExpressionsTrait;
-use Pst\Database\Query\Builder\Identifiers\TableIdentifier;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
+use Pst\Database\Query\Identifiers\TableIdentifier;
 
 class From extends Clause implements IFrom {
-    use ExpressionsTrait;
+    use ClauseExpressionsTrait;
 
     public function getQuerySql(): string {
         return $this->querySql ??= implode(', ', array_map(function($expression) {

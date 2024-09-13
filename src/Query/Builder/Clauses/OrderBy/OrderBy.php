@@ -7,15 +7,15 @@ namespace Pst\Database\Query\Builder\Clauses\OrderBy;
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
 
-use Pst\Database\PregPatterns;
+use Pst\Database\Preg;
+use Pst\Database\Query\Identifiers\ColumnIdentifier;
+use Pst\Database\Query\Identifiers\IColumnIdentifier;
 use Pst\Database\Query\Builder\Clauses\Clause;
-use Pst\Database\Query\Builder\Identifiers\ColumnIdentifier;
-use Pst\Database\Query\Builder\Clauses\Traits\ExpressionsTrait;
-use Pst\Database\Query\Builder\Identifiers\IColumnIdentifier;
-use Pst\Database\Query\Builder\IGetQueryParts;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
+
 
 class OrderBy extends Clause implements IOrderBy {
-    use ExpressionsTrait;
+    use ClauseExpressionsTrait;
 
 
     public function getQuerySql(): string {
@@ -53,7 +53,7 @@ OrderBy::registerExpressionConstructor(
             return null;
         }
 
-        $pattern = PregPatterns::COLUMN_IDENTIFIER_PATTERN . "(?:\s+(asc|desc))?\s*\$";
+        $pattern = Preg::COLUMN_IDENTIFIER_PATTERN . "(?:\s+(asc|desc))?\s*\$";
 
         if (!preg_match("/^" . $pattern . "\s*\$/i", $string, $matches)) {
             return null;

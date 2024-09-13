@@ -7,6 +7,9 @@ namespace Pst\Database\Structure;
 use Pst\Core\CoreObject;
 
 use Pst\Database\Validator;
+use Pst\Database\Enums\IndexType;
+use Pst\Database\Enums\ColumnType;
+use Pst\Database\Enums\ColumnDefaultValue;
 
 use InvalidArgumentException;
 

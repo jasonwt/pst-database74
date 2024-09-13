@@ -6,7 +6,7 @@ namespace Pst\Database\Query\Builder\Clauses;
 
 use Pst\Core\ICoreObject;
 
-use Pst\Database\Query\Builder\IGetQueryParts;
+use Pst\Database\Query\IQueryable;
 
-interface IClauseExpression extends ICoreObject, IGetQueryParts {   
+interface IClauseExpression extends ICoreObject, IQueryable {   
 }

@@ -13,7 +13,7 @@ use Pst\Database\Query\Builder\Expressions\IExpression;
 
 use InvalidArgumentException;
 use Pst\Database\Query\Builder\Clauses\Enums\JoinType;
-use Pst\Database\Query\Builder\Clauses\Enums\ComparisonOperator;
+use Pst\Database\Query\Enums\ComparisonOperator;
 
 class Join extends Clause {
     /**
@@ -44,44 +44,44 @@ class Join extends Clause {
 
     
 
-    public static function getColumnIdentifierPregPattern(): string {
+    public static function getColumnIdentifierPreg(): string {
         return '((?:(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)\.)?' . '(?:(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)\.)?' . '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`))';
     }
 
-    public static function getTableIdentifierPregPattern(): string {
+    public static function getTableIdentifierPreg(): string {
         return '((?:(?:[a-zA-Z0-9_]+\.)?' . "(?:[a-zA-Z0-9_]+)))" . '(?:\s+as\s+([a-zA-Z0-9_]+))?\s*';
     }
 
-    public static function getJoinOnPregPattern(string $delimiter = "/"): string {
-        $joinTypesPregPattern = JoinType::getPregMatchPattern($delimiter);
-        $tableIdentifierPregPattern = self::getTableIdentifierPregPattern();
-        $columnIdentifierPregPattern = self::getColumnIdentifierPregPattern();
-        $operandPregPattern = Expression::getOperandPregPattern();
-        $comparisonOperatorsPregPattern = ComparisonOperator::getPregMatchPattern($delimiter);
+    public static function getJoinOnPreg(string $delimiter = "/"): string {
+        $joinTypesPreg = JoinType::getPregMatchPattern($delimiter);
+        $tableIdentifierPreg = self::getTableIdentifierPreg();
+        $columnIdentifierPreg = self::getColumnIdentifierPreg();
+        $operandPreg = Expression::getOperandPreg();
+        $comparisonOperatorsPreg = ComparisonOperator::getPregMatchPattern($delimiter);
 
-        $expressionPattern = "{$columnIdentifierPregPattern}\s*{$comparisonOperatorsPregPattern}\s*{$operandPregPattern}";
+        $expressionPattern = "{$columnIdentifierPreg}\s*{$comparisonOperatorsPreg}\s*{$operandPreg}";
 
-        return "(?:(?:{$joinTypesPregPattern}\s+)?JOIN\s+{$tableIdentifierPregPattern}\s+(ON)\s+{$expressionPattern})";
+        return "(?:(?:{$joinTypesPreg}\s+)?JOIN\s+{$tableIdentifierPreg}\s+(ON)\s+{$expressionPattern})";
 
         //return "{$joinTypePattern}\s+JOIN\s+(.+)\s+ON\s+(.+)";
     }
 
-    public static function getJoinUsingPregPattern(string $delimiter = "/"): string {
-        $joinTypesPregPattern = JoinType::getPregMatchPattern($delimiter);
-        $tableIdentifierPregPattern = self::getTableIdentifierPregPattern();
-        $columnIdentifierPregPattern = self::getColumnIdentifierPregPattern();
-        $columnNamePregPattern = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)';
-        $multipleColumnNamesPregPattern = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)(?:\s*,\s*(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`))*';
+    public static function getJoinUsingPreg(string $delimiter = "/"): string {
+        $joinTypesPreg = JoinType::getPregMatchPattern($delimiter);
+        $tableIdentifierPreg = self::getTableIdentifierPreg();
+        $columnIdentifierPreg = self::getColumnIdentifierPreg();
+        $columnNamePreg = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)';
+        $multipleColumnNamesPreg = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)(?:\s*,\s*(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`))*';
         
 
-        return "(?:(?:{$joinTypesPregPattern}\s+)?JOIN\s+{$tableIdentifierPregPattern}\s+(USING)\s+\(({$multipleColumnNamesPregPattern})\))";
+        return "(?:(?:{$joinTypesPreg}\s+)?JOIN\s+{$tableIdentifierPreg}\s+(USING)\s+\(({$multipleColumnNamesPreg})\))";
     }
 
     
 
     public static function tryParse(string $expression): ?self {
-        $joinOnPattern = self::getJoinOnPregPattern();
-        $joinUsingPattern = self::getJoinUsingPregPattern();
+        $joinOnPattern = self::getJoinOnPreg();
+        $joinUsingPattern = self::getJoinUsingPreg();
 
         $patterns = "(?:{$joinOnPattern}?|{$joinUsingPattern})";
 

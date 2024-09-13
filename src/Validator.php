@@ -6,16 +6,13 @@ namespace Pst\Database;
 
 use Closure;
 
-use Pst\Core\Func;
 use Pst\Core\IToString;
-use Pst\Core\Types\TypeHintFactory;
 
+use Pst\Database\Enums\ColumnType;
 use Pst\Database\Structure\Column;
 use Pst\Database\Structure\Table;
 
-
 use Pst\Core\Exceptions\NotImplementedException;
-use Pst\Database\Structure\ColumnType;
 
 final class Validator {
     /**

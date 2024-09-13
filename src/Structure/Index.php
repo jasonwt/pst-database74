@@ -5,18 +5,14 @@ declare(strict_types=1);
 namespace Pst\Database\Structure;
 
 use Pst\Core\CoreObject;
-use Pst\Core\Types\Type;
-
-use Pst\Database\Validator;
-
-use Pst\Core\Collections\ReadOnlyCollection;
-use Pst\Core\Collections\IReadOnlyCollection;
-
-use InvalidArgumentException;
+use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
-use Pst\Core\Exceptions\LogicException;
-use Pst\Core\Types\TypeHintFactory;
+
+use Pst\Database\Validator;
+use Pst\Database\Enums\IndexType;
+
+use InvalidArgumentException;
 
 class Index extends CoreObject {
     private string $schemaName;

@@ -6,9 +6,11 @@ namespace Pst\Database\Query\Builder\Clauses;
 
 use Pst\Core\ICoreObject;
 use Pst\Core\Types\Type;
-use Pst\Database\Query\Builder\IGetQueryParts;
+use Pst\Database\Query\IQueryable;
 
-interface IClause extends ICoreObject, IGetQueryParts {
+interface IClause extends ICoreObject, IQueryable {
+    public function getExpressions(): array;
+
     public static function getClauseName(): string;
     public static function getExpressionInterfaceType(): Type;
 

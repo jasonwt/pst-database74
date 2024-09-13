@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure;
 
-use InvalidArgumentException;
-use Pst\Core\Collections\Enumerator;
-use Pst\Core\Collections\IEnumerable;
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
-use Pst\Core\Traits\PropertiesArrayTrait;
+use Pst\Core\Collections\Enumerator;
+use Pst\Core\Collections\IEnumerable;
 
 use Pst\Database\Validator;
 
-use Pst\Core\Collections\ReadOnlyCollection;
-use Pst\Core\Collections\IReadOnlyCollection;
-use Pst\Core\Types\TypeHintFactory;
+use InvalidArgumentException;
 
 class Table extends CoreObject {
     private string $schemaName;
@@ -59,14 +55,14 @@ class Table extends CoreObject {
     }
 
     public function columns(): IEnumerable {
-        return Enumerator::new($this->columns, TypeHint::class(Column::class));
+        return Enumerator::new($this->columns, Type::class(Column::class));
     }
 
     public function indexes(): IEnumerable {
-        return Enumerator::new($this->indexes, TypeHint::class(Index::class));
+        return Enumerator::new($this->indexes, Type::class(Index::class));
     }
 
-    public function constructTableRecord(array $values = []): TableRecord {
-        return new TableRecord($this, $values);
-    }
+    // public function constructTableRecord(array $values = []): TableRecord {
+    //     return new TableRecord($this, $values);
+    // }
 }

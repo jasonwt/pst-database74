@@ -7,11 +7,11 @@ namespace Pst\Database\Query\Builder\Clauses\Select;
 use Pst\Core\Types\Type;
 
 use Pst\Database\Query\Builder\Clauses\Clause;
-use Pst\Database\Query\Builder\Clauses\Traits\ExpressionsTrait;
-use Pst\Database\Query\Builder\Identifiers\ColumnIdentifier;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
+use Pst\Database\Query\Identifiers\ColumnIdentifier;
 
 class Select extends Clause implements ISelect {
-    use ExpressionsTrait;
+    use ClauseExpressionsTrait;
 
     public function getQuerySql(): string {
         return $this->querySql ??= implode(', ', array_map(function($expression) {

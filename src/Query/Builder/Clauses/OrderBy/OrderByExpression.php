@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\Query\Builder\Clauses\OrderBy;
 
 use Pst\Database\Query\Builder\Clauses\ClauseExpression;
-use Pst\Database\Query\Builder\Identifiers\IColumnIdentifier;
+use Pst\Database\Query\Identifiers\IColumnIdentifier;
 
 use InvalidArgumentException;
 

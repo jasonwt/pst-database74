@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Pst\Database\Structure;
 
 use Pst\Core\CoreObject;
-use Pst\Core\Types\TypeHintFactory;
+use Pst\Core\Types\Type;
 use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 
 use Pst\Database\Validator;
 
 use InvalidArgumentException;
-
 
 class Schema extends CoreObject {
     private string $name;
@@ -38,6 +37,6 @@ class Schema extends CoreObject {
     }
 
     public function tables(): IEnumerable {
-        return Enumerator::new($this->tables, TypeHint::class(Table::class));
+        return Enumerator::new($this->tables, Type::class(Table::class));
     }
 }

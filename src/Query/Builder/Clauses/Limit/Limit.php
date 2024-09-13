@@ -7,10 +7,10 @@ namespace Pst\Database\Query\Builder\Clauses\Limit;
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
 use Pst\Database\Query\Builder\Clauses\Clause;
-use Pst\Database\Query\Builder\Clauses\Traits\ExpressionsTrait;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
 
 class Limit extends Clause implements ILimit {
-    use ExpressionsTrait;
+    use ClauseExpressionsTrait;
 
     public function getQuerySql(): string {
         return $this->querySql ??= implode(', ', array_map(function($expression) {
