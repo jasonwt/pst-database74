@@ -9,6 +9,8 @@ use Pst\Core\Types\Type;
 use Pst\Database\Query\Builder\Clauses\Clause;
 use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
 use Pst\Database\Query\Identifiers\ColumnIdentifier;
+use Pst\Database\Query\Literals\NumericLiteral;
+use Pst\Database\Query\Literals\StringLiteral;
 
 class Select extends Clause implements ISelect {
     use ClauseExpressionsTrait;
@@ -32,13 +34,20 @@ class Select extends Clause implements ISelect {
  * An expression constructor that parses a string into an SelectExpression
  */
 Select::registerExpressionConstructor(
-    "ColumnIdentifier String",
+    "String",
     function($string): ?ISelectExpression {
-        if (!is_string($string) || ($columnIdentifier = ColumnIdentifier::tryParse($string)) === null) {
-            return null;
-        }
+        if (is_string($string)) {
+            if (($columnIdentifier = ColumnIdentifier::tryParse($string)) !== null) {
+                return new SelectExpression($columnIdentifier);
+            } else if (($stringLiteral = StringLiteral::tryParse($string)) !== null) {
+                return new SelectExpression($stringLiteral);
+            } else if (($numericLiteral = NumericLiteral::tryParse($string)) !== null) {
+                return new SelectExpression($numericLiteral);
+            }
 
-        return new SelectExpression($columnIdentifier);
+        }
+     
+        return null;
     }
 , 0);
 
@@ -55,3 +64,4 @@ Select::registerExpressionConstructor(
         return new SelectExpression($columnIdentifier);
     }
 , 0);
+

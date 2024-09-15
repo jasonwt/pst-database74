@@ -6,16 +6,13 @@ namespace Pst\Database\Query\Builder\Clauses;
 
 use Pst\Core\Func;
 use Pst\Core\Types\Type;
+use Pst\Core\Types\TypeUnion;
 use Pst\Core\Types\TypeHintFactory;
 
 use Pst\Database\Query\Builder\Clauses\IClauseExpression;
 
-
-use Pst\Core\Exceptions\NotImplementedException;
-
 use Closure;
 use InvalidArgumentException;
-use Pst\Core\Types\TypeUnion;
 
 trait ClauseExpressionsTrait {
     private static array $expressionTraitConstructors = [];

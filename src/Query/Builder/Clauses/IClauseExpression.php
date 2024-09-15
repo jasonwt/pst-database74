@@ -8,5 +8,8 @@ use Pst\Core\ICoreObject;
 
 use Pst\Database\Query\IQueryable;
 
-interface IClauseExpression extends ICoreObject, IQueryable {   
+interface IClauseExpression extends ICoreObject, IQueryable {
+    //public function getExpression();
+
+    public function getIdentifiers(): array;
 }

@@ -11,6 +11,7 @@ use Pst\Core\Types\TypeHintFactory;
 use Pst\Core\Exceptions\NotImplementedException;
 
 use InvalidArgumentException;
+use Pst\Core\Types\ITypeHint;
 
 class ColumnType extends Enum {
     public static function cases(): array {
@@ -389,7 +390,7 @@ class ColumnType extends Enum {
         return $this->isChar() || $this->isBinary() || $this->isText() || $this->isBlob() || $this->name() === "ENUM" || $this->name() === "SET";
     }
 
-    public function toTypeHint(bool $isNullable = false): TypeHint {
+    public function toTypeHint(bool $isNullable = false): ITypeHint {
         $typeHintString = $this->isIntegerType() ? 'int' : (
             $this->isDecimalType() ? 'float' : (
                 $this->isStringType() ? 'string' : null

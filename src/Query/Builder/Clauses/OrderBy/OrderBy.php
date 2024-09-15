@@ -63,12 +63,8 @@ OrderBy::registerExpressionConstructor(
         $direction = $matches[4] ??= null;
 
         return new class($columnIdentifier, $direction) extends OrderByExpression implements IOrderByExpression {
-            private IColumnIdentifier $columnIdentifier;
-            private ?string $direction;
-
             public function __construct(IColumnIdentifier $columnIdentifier, ?string $direction = null) {
-                $this->columnIdentifier = $columnIdentifier;
-                $this->direction = $direction;
+                parent::__construct([$columnIdentifier, $direction]);
             }
 
             public function getQueryParameters(): array {
@@ -76,7 +72,8 @@ OrderBy::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return (string) $this->columnIdentifier . ($this->direction !== null ? " $this->direction" : '');
+                list ($columnIdentifier, $direction) = $this->getExpression();
+                return (string) $columnIdentifier . ($direction !== null ? " $direction" : '');
             }
         };
     }
@@ -96,11 +93,11 @@ OrderBy::registerExpressionConstructor(
             ColumnIdentifier::new($columnIdentifier->getSchemaName(), $columnIdentifier->getTableName(), $columnIdentifier->getColumnName()) :
             $columnIdentifier;
 
-        return new class($columnIdentifier) extends CoreObject implements IOrderByExpression {
+        return new class($columnIdentifier) extends OrderByExpression implements IOrderByExpression {
             private IColumnIdentifier $columnIdentifier;
 
             public function __construct(IColumnIdentifier $columnIdentifier) {
-                $this->columnIdentifier = $columnIdentifier;
+                parent::__construct($columnIdentifier);
             }
 
             public function getQueryParameters(): array {
@@ -108,7 +105,7 @@ OrderBy::registerExpressionConstructor(
             }
 
             public function getQuerySql(): string {
-                return (string) $this->columnIdentifier;
+                return (string) $this->getExpression();
             }
         };
     }

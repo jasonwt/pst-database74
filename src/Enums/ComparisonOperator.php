@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Pst\Database\Query\Enums;
+namespace Pst\Database\Enums;
 
 use Pst\Core\Enum;
 

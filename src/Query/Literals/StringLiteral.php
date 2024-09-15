@@ -46,20 +46,17 @@ class StringLiteral extends CoreObject implements IStringLiteral {
     }
 
     public static function tryParse(string $value): ?StringLiteral {
-        $pattern = Preg::STRING_LITERAL_PATTERN;
+        $pattern = Preg::STRING_LITERAL_WITH_OPTIONAL_ALIAS_PATTERN;
 
-        if (!preg_match('/^' . $pattern . '/s*\$/i', $value, $matches)) {
+        if (!preg_match("/^" . $pattern . "\s*$/i", $value, $matches)) {
             return null;
         }
 
-        print_r($matches);
-        exit;
-
-        return new StringLiteral($value);
+        return StringLiteral::new($matches[1], $matches[2] ?? null);
     }
 
     public static function new(string $value, ?string $alias = null): StringLiteral {
-        return new StringLiteral($value, $alias);
+        return new StringLiteral($value, $alias !== null ? trim(trim($alias), "`") : null);
     }
 
     public function __toString(): string {

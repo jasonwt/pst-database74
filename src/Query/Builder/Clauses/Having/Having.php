@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query\Builder\Clauses\Having;
 
-use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
 
 use Pst\Database\Preg;
@@ -13,12 +12,18 @@ use Pst\Database\Query\Literals\StringLiteral;
 use Pst\Database\Query\Identifiers\ColumnIdentifier;
 use Pst\Database\Query\Builder\Clauses\Clause;
 use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
-use Pst\Database\Query\Enums\ComparisonOperator;
-
-use InvalidArgumentException;
+use Pst\Database\Enums\ComparisonOperator;
 
 class Having extends Clause implements IHaving {
     use ClauseExpressionsTrait;
+
+    private HavingExpressionType $havingExpressionType;
+
+    protected function __construct(HavingExpressionType $havingExpressionType, ...$expressions) {
+        $this->havingExpressionType = $havingExpressionType;
+
+        parent::__construct(...$expressions);
+    }
 
     public function getQuerySql(): string {
         if ($this->querySql !== null) {
@@ -26,64 +31,39 @@ class Having extends Clause implements IHaving {
         }
 
         $expressionsSql = array_map(function($expression, $key) {
-            $returnValue = "";
-
-            if ($key > 0) {
-                if ($expression instanceof IOrHaving) {
-                    $returnValue = "OR ";
-                } else {
-                    $returnValue = "AND ";
-                }
-            }
-
-            return trim($returnValue . $expression->getQuerySql()) . " ";
+            return rtrim($expression->getQuerySql()) . " ";
         }, $this->getExpressions(), array_keys($this->getExpressions()));
 
-        $sql = count($expressionsSql) > 1 ? "(" . rtrim(implode(" ", $expressionsSql)) . ")" : $expressionsSql[0];
+        $sql = 
+            trim((string) $this->havingExpressionType . " " .
+            (count($expressionsSql) > 1 ? "(" . rtrim(implode("", $expressionsSql)) . ")" : $expressionsSql[0]));
 
         return $this->querySql = $sql . "\n";
     }
 
-    public function and(... $expressions): Having {
-        if (count($expressions) === 0) {
-            throw new InvalidArgumentException("No expressions provided");
-        }
-
-        $expressions = array_map(function($expression) {
-            return new class($expression) extends Having implements IAndHaving {
-                public function __construct($expression) {
-                    parent::__construct($expression);
-                }
-            };
-
-        }, $expressions);
-
-        return new Having(...$this->getExpressions(), ...$expressions);
+    public function and($expression): IHaving {
+        $newExpression = new Having(HavingExpressionType::AND(), $expression);
+        return new Having($this->havingExpressionType, ...array_merge($this->getExpressions(), [$newExpression]));
     }
 
-    public function or(... $expressions): Having {
-        if (count($expressions) === 0) {
-            throw new InvalidArgumentException("No expressions provided");
-        }
-
-        $expressions = array_map(function($expression) {
-            return new class($expression) extends Having implements IOrHaving {
-                public function __construct($expression) {
-                    parent::__construct($expression);
-                }
-            };
-
-        }, $expressions);
-
-        return new Having(...$this->getExpressions(), ...$expressions);
+    public function or($expression): IHaving {
+        $newExpression = new Having(HavingExpressionType::OR(), $expression);
+        return new Having($this->havingExpressionType, ...array_merge($this->getExpressions(), [$newExpression]));
     }
 
     public static function getExpressionInterfaceType(): Type {
         return Type::new(IHavingExpression::class);
     }
 
-    public static function new(...$expressions): self {
-        return new self(...$expressions);
+    /**
+     * Creates a new Having clause
+     * 
+     * @param mixed $expression 
+     * 
+     * @return Having 
+     */
+    public static function new($expression): self {
+        return new static(HavingExpressionType::HAVING(), $expression);
     }
 }
 
@@ -118,23 +98,19 @@ Having::registerExpressionConstructor(
         $operator = ComparisonOperator::tryFrom($matches[4]);
         $rightOperand = ColumnIdentifier::new($matches[7], $matches[6], $matches[5], null);
 
-        return new class($leftOperand, $operator, $rightOperand) extends CoreObject implements IHavingExpression {
-            private ColumnIdentifier $leftOperand;
-            private ComparisonOperator $operator;
-            private ColumnIdentifier $rightOperand;
-
-            public function __construct(ColumnIdentifier $leftOperand, ComparisonOperator $operator, ColumnIdentifier $rightOperand) {
-                $this->leftOperand = $leftOperand;
-                $this->operator = $operator;
-                $this->rightOperand = $rightOperand;
+        return new class($leftOperand, $operator, $rightOperand) extends HavingExpression implements IHavingExpression {
+            public function __construct($leftOperand, ComparisonOperator $operator, $rightOperand) {
+                parent::__construct([$leftOperand, $operator, $rightOperand]);
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQuerySql() . " " . $operator . " " . $rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQueryParameters() + $rightOperand->getQueryParameters();
             }
         };
     }
@@ -160,23 +136,19 @@ Having::registerExpressionConstructor(
         $operator = ComparisonOperator::tryFrom($matches[2]);
         $rightOperand = ($matches[3][0] === "'" || $matches[3][0] === '"') ? StringLiteral::new($matches[3]) : NumericLiteral::new((float) $matches[3]);
 
-        return new class($leftOperand, $operator, $rightOperand) extends CoreObject implements IHavingExpression {
-            private $leftOperand;
-            private ComparisonOperator $operator;
-            private $rightOperand;
-
+        return new class($leftOperand, $operator, $rightOperand) extends HavingExpression implements IHavingExpression {
             public function __construct($leftOperand, ComparisonOperator $operator, $rightOperand) {
-                $this->leftOperand = $leftOperand;
-                $this->operator = $operator;
-                $this->rightOperand = $rightOperand;
+                parent::__construct([$leftOperand, $operator, $rightOperand]);
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQuerySql() . " " . $operator . " " . $rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQueryParameters() + $rightOperand->getQueryParameters();
             }
         };
     }
@@ -218,24 +190,20 @@ Having::registerExpressionConstructor(
             $rightOperand = ($matches[5][0] === "'" || $matches[5][0] === '"') ? StringLiteral::new($matches[5]) : NumericLiteral::new((float) $matches[5]);
         }
 
-        return new class($leftOperand, $operator, $rightOperand) extends CoreObject implements IHavingExpression {
-            private $leftOperand;
-            private ComparisonOperator $operator;
-            private $rightOperand;
-
+        return new class($leftOperand, $operator, $rightOperand) extends HavingExpression implements IHavingExpression {
             public function __construct($leftOperand, ComparisonOperator $operator, $rightOperand) {
-                $this->leftOperand = $leftOperand;
-                $this->operator = $operator;
-                $this->rightOperand = $rightOperand;
+                parent::__construct([$leftOperand, $operator, $rightOperand]);
             }
 
             public function getQuerySql(): string {
-                return $this->leftOperand->getQuerySql() . " " . $this->operator . " " . $this->rightOperand->getQuerySql();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQuerySql() . " " . $operator . " " . $rightOperand->getQuerySql();
             }
 
             public function getQueryParameters(): array {
-                return $this->leftOperand->getQueryParameters() + $this->rightOperand->getQueryParameters();
+                list ($leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQueryParameters() + $rightOperand->getQueryParameters();
             }
-        };        
+        };
     }
 , 0);

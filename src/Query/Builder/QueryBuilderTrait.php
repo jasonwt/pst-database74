@@ -4,25 +4,38 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query\Builder;
 
-use Pst\Database\Query\IQuery;
-use Pst\Database\Query\Builder\IAutoJoiner;
+use Pst\Core\Types\Type;
+use Pst\Core\Collections\Enumerator;
+use Pst\Core\Collections\IEnumerable;
 
+use Pst\Database\Query\IQuery;
+use Pst\Database\Query\Builder\Clauses\IClause;
 use Pst\Database\Query\Builder\Clauses\From\From;
 use Pst\Database\Query\Builder\Clauses\Join\Join;
 use Pst\Database\Query\Builder\Clauses\Limit\Limit;
 use Pst\Database\Query\Builder\Clauses\Where\Where;
+use Pst\Database\Query\Builder\Clauses\Insert\Insert;
 use Pst\Database\Query\Builder\Clauses\Offset\Offset;
 use Pst\Database\Query\Builder\Clauses\Select\Select;
 use Pst\Database\Query\Builder\Clauses\Having\Having;
 use Pst\Database\Query\Builder\Clauses\GroupBy\GroupBy;
 use Pst\Database\Query\Builder\Clauses\OrderBy\OrderBy;
+use Pst\Database\Query\Builder\Clauses\ReplaceInto\ReplaceInto;
 
 use Pst\Core\Exceptions\NotImplementedException;
 
 use InvalidArgumentException;
+use Pst\Database\Query\Builder\Clauses\DeleteFrom\DeleteFrom;
+use Pst\Database\Query\Builder\Clauses\Set\Set;
+use Pst\Database\Query\Builder\Clauses\Update\Update;
 
 trait QueryBuilderTrait {
-    private array $selectQueryTraitClauses = [
+    private array $queryBuilderTraitClauses = [
+        Insert::class => null,
+        ReplaceInto::class => null,
+        Update::class => null,
+        Set::class => null,
+        DeleteFrom::class => null,
         Select::class => null,
         From::class => null,
         Join::class => null,
@@ -44,10 +57,10 @@ trait QueryBuilderTrait {
 
             $clauseValueClass = get_class($clauseValue);
             
-            if (array_key_exists($clauseValueClass, $this->selectQueryTraitClauses)) {
+            if (array_key_exists($clauseValueClass, $this->queryBuilderTraitClauses)) {
                 $thisClauseClass = $clauseValueClass;
             } else {
-                foreach ($this->selectQueryTraitClauses as $clauseClass => $clause) {
+                foreach ($this->queryBuilderTraitClauses as $clauseClass => $clause) {
                     if (is_a($clauseValue, $clauseClass, true)) {
                         $thisClauseClass = $clauseClass;
                         break;
@@ -59,12 +72,55 @@ trait QueryBuilderTrait {
                 throw new InvalidArgumentException("Invalid clause value: $clauseValue");
             }
 
-            if ($this->selectQueryTraitClauses[$thisClauseClass] !== null) {
+            if ($this->queryBuilderTraitClauses[$thisClauseClass] !== null) {
                 throw new InvalidArgumentException("Clause already set: $thisClauseClass");
             }
 
-            $this->selectQueryTraitClauses[$thisClauseClass] = $clauseValue;
+            $this->queryBuilderTraitClauses[$thisClauseClass] = $clauseValue;
         }
+    }
+
+    public function getClause(string $clauseClassName): ?IClause {
+        if (!array_key_exists($clauseClassName, $this->queryBuilderTraitClauses)) {
+            if (!class_exists($clauseClassName) || !is_a($clauseClassName, IClause::class, true)) {
+                throw new InvalidArgumentException("Invalid clause class: $clauseClassName");
+            }
+            
+            return null;
+        }
+
+        return $this->queryBuilderTraitClauses[$clauseClassName];
+    }
+
+    public function getClauses(): IEnumerable {
+        return Enumerator::new($this->queryBuilderTraitClauses, Type::interface(IClause::class));
+    }
+
+    public function getIdentifiers(): array {
+        $identifiers = [];
+
+        foreach ($this->queryBuilderTraitClauses as $clauseClassName => $clause) {
+            if ($clause === null) {
+                continue;
+            }
+
+            $clauseIdentifiers = [
+                "schemas" => [],
+                "tables" => [],
+                "columns" => [],
+                "aliases" => []
+            ];
+
+            foreach ($clause->getIdentifiers() as $key => $value) {
+                $clauseIdentifiers[$key] += $value;
+            }
+
+            if (Enumerator::new($clauseIdentifiers)->any(fn($v) => !empty($v))) {
+                $identifiers[$clauseClassName] = Enumerator::new($clauseIdentifiers)->where(fn($v, $k) => !empty($v))->toArray();
+            }
+        }
+        
+        return $identifiers;
     }
 
     protected abstract function validateQuery(): void;
@@ -76,18 +132,18 @@ trait QueryBuilderTrait {
      * 
      * @return IQuery 
      */
-    public function getQuery(?IAutoJoiner $autoJoiner = null): IQuery {
+    public function getQuery(): IQuery {
         $querySql = "";
         $queryParameters = [];
 
         $this->validateQuery();
 
-        foreach ($this->selectQueryTraitClauses as $clauseClass => $clause) {
+        foreach ($this->queryBuilderTraitClauses as $clauseClass => $clause) {
             if ($clause === null) {
                 continue;
             }
 
-            $querySql .= $clauseClass::getClauseName() . " " . rtrim($clause->getQuerySql()) . "\n";
+            $querySql .= ltrim($clauseClass::getBeginClauseStatement() . " " . rtrim($clause->getQuerySql()) . "\n");
 
             $queryParameters += $clause->getQueryParameters();
         }

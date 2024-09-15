@@ -49,8 +49,7 @@ class NumericLiteral extends CoreObject implements INumericLiteral {
     }
 
     public function __toString(): string {
-        throw new \Exception("Not implemented");
-        echo "ASDFASDF";
+        
         return (string)$this->value;
     }
 }

@@ -5,25 +5,68 @@ declare(strict_types=1);
 namespace Pst\Database\Query\Builder\Clauses;
 
 use Pst\Core\CoreObject;
+use Pst\Core\Func;
+use Pst\Core\Types\TypeHintFactory;
 use Pst\Database\Query\IQueryable;
 
 abstract class Clause extends CoreObject implements IClause {
     private array $expressions = [];
-    private ?array $queryParameters = null;
+
     protected ?string $querySql = null;
 
     protected function __construct(... $expressions) {
-        $this->expressions = array_map(function($expression) {
-            if (($constructedExpression = static::tryConstructExpression($expression)) === null) {
-                throw new \Exception("Invalid expression: $expression");
+        $this->addExpressions(...$expressions);
+    }
+
+    public function getIdentifiers(): array {
+        $identifiers = [
+            "schemas" => [],
+            "tables" => [],
+            "columns" => [],
+            "aliases" => []
+        ];
+
+        foreach ($this->expressions as $expression) {
+            if ($expression === null) {
+                continue;
             }
 
-            if (!$constructedExpression instanceof IQueryable) {
-                throw new \Exception("Expression must implement IQueryable");
+            foreach ($expression->getIdentifiers() as $key => $value) {
+                $identifiers[$key] += $value;
+            }
+        }
+
+        return $identifiers;
+    }
+
+    /**
+     * Adds expressions to the clause
+     * 
+     * @param string|IClauseExpression ...$expressions 
+     * 
+     * @return void 
+     */
+    protected function addExpressions(...$expressions): void {
+        foreach ($expressions as $expression) {
+            if (!$expression instanceof IClauseExpression) {
+                if (($expression = static::tryConstructExpression($expression)) === null) {
+                    
+                    throw new \Exception("Invalid expression: $expression");
+                }
             }
 
-            return $constructedExpression;
-        }, $expressions);
+            $validateFunc = Func::new(function($expression): bool {
+                return $expression instanceof IQueryable;
+            }, static::getExpressionInterfaceType(), TypeHintFactory::bool());
+
+            if (!$validateFunc($expression)) {
+                throw new \Exception("Expression must implement IQueryable, type: '" . (string) static::getExpressionInterfaceType() . "' provided.");
+            }
+
+            //$expressionValue = $expression->getEx
+            
+            $this->expressions[] = $expression;
+        }
     }
 
     public function getExpressions(): array {
@@ -31,7 +74,6 @@ abstract class Clause extends CoreObject implements IClause {
     }
 
     public function getQueryParameters(): array {
-        
         return $this->queryParameters ??= array_reduce($this->expressions, function($carry, $expression) {
             if ($expression === null) {
                 return $carry;
@@ -40,6 +82,10 @@ abstract class Clause extends CoreObject implements IClause {
             $carry += $expression->getQueryParameters();
             return $carry;
         }, []);
+    }
+
+    public static function getBeginClauseStatement(): string {
+        return static::getClauseName();
     }
 
     public static function getClauseName(): string {

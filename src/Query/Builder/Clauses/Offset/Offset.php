@@ -47,11 +47,9 @@ Offset::registerExpressionConstructor(
             return null;
         }
 
-        return new class($intValue) extends CoreObject implements IOffsetExpression {
-            private int $value;
-
-            public function __construct(int $value) {
-                $this->value = $value;
+        return new class($intValue) extends OffsetExpression implements IOffsetExpression {
+            public function __construct($limit) {
+                parent::__construct($limit);
             }
 
             public function getQuerySql(): string {
@@ -59,7 +57,7 @@ Offset::registerExpressionConstructor(
             }
 
             public function getQueryParameters(): array {
-                return ["p" . $this->getObjectId() => $this->value];
+                return ["p" . $this->getObjectId() => $this->getExpression()];
             }
         };
     }

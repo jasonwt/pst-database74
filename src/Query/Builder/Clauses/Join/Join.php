@@ -4,115 +4,87 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query\Builder\Clauses\Join;
 
+use Pst\Core\Types\Type;
+
+use Pst\Database\Preg;
+use Pst\Database\Enums\ComparisonOperator;
 use Pst\Database\Query\Builder\Clauses\Clause;
+use Pst\Database\Query\Builder\Clauses\ClauseExpressionsTrait;
+use Pst\Database\Query\Identifiers\ColumnIdentifier;
+use Pst\Database\Query\Identifiers\TableIdentifier;
 
-use Pst\Database\Query\Builder\Expressions\Expression;
-use Pst\Database\Query\Builder\Expressions\IExpression;
+class Join extends Clause implements IJoin {
+    use ClauseExpressionsTrait;
 
-
-
-use InvalidArgumentException;
-use Pst\Database\Query\Builder\Clauses\Enums\JoinType;
-use Pst\Database\Query\Enums\ComparisonOperator;
-
-class Join extends Clause {
-    /**
-     * Creates a new Join clause
-     * 
-     * @param string|IExpression|Join ...$columnIdentifiers 
-     */
-    public function __construct(... $expressions) {
-        $expressions = array_reduce($expressions, function($carry, $expression) {
-            if (is_string($expression)) {
-                if (($expression = Expression::tryConstructFromString($expression)) === null) {
-                    throw new InvalidArgumentException("Invalid expression: '$expression'");
-                }
-            } else if ($expression instanceof self) {
-                $carry[] = $expression;
-                return $carry;
-
-            } else if (!($expression instanceof IExpression)) {
-                throw new InvalidArgumentException("Invalid expression type: '" . is_object($expression) ? get_class($expression) : gettype($expression) . "'");
-            }
-
-            $carry[] = $expression;
-            return $carry;
-        }, []);
-
-        parent::__construct($expressions);
-    }
-
-    
-
-    public static function getColumnIdentifierPreg(): string {
-        return '((?:(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)\.)?' . '(?:(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)\.)?' . '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`))';
-    }
-
-    public static function getTableIdentifierPreg(): string {
-        return '((?:(?:[a-zA-Z0-9_]+\.)?' . "(?:[a-zA-Z0-9_]+)))" . '(?:\s+as\s+([a-zA-Z0-9_]+))?\s*';
-    }
-
-    public static function getJoinOnPreg(string $delimiter = "/"): string {
-        $joinTypesPreg = JoinType::getPregMatchPattern($delimiter);
-        $tableIdentifierPreg = self::getTableIdentifierPreg();
-        $columnIdentifierPreg = self::getColumnIdentifierPreg();
-        $operandPreg = Expression::getOperandPreg();
-        $comparisonOperatorsPreg = ComparisonOperator::getPregMatchPattern($delimiter);
-
-        $expressionPattern = "{$columnIdentifierPreg}\s*{$comparisonOperatorsPreg}\s*{$operandPreg}";
-
-        return "(?:(?:{$joinTypesPreg}\s+)?JOIN\s+{$tableIdentifierPreg}\s+(ON)\s+{$expressionPattern})";
-
-        //return "{$joinTypePattern}\s+JOIN\s+(.+)\s+ON\s+(.+)";
-    }
-
-    public static function getJoinUsingPreg(string $delimiter = "/"): string {
-        $joinTypesPreg = JoinType::getPregMatchPattern($delimiter);
-        $tableIdentifierPreg = self::getTableIdentifierPreg();
-        $columnIdentifierPreg = self::getColumnIdentifierPreg();
-        $columnNamePreg = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)';
-        $multipleColumnNamesPreg = '(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`)(?:\s*,\s*(?:[a-zA-Z0-9_]+|`[a-zA-Z0-9_]+`))*';
-        
-
-        return "(?:(?:{$joinTypesPreg}\s+)?JOIN\s+{$tableIdentifierPreg}\s+(USING)\s+\(({$multipleColumnNamesPreg})\))";
-    }
-
-    
-
-    public static function tryParse(string $expression): ?self {
-        $joinOnPattern = self::getJoinOnPreg();
-        $joinUsingPattern = self::getJoinUsingPreg();
-
-        $patterns = "(?:{$joinOnPattern}?|{$joinUsingPattern})";
-
-        if (preg_match('/^' . $patterns . '$/i', $expression, $matches) === false) {
-            return null;
+    public function getQuerySql(): string {
+        if ($this->querySql !== null) {
+            return $this->querySql;
         }
 
-        $matchedString = array_shift($matches);
+        $expressionsSql = array_map(function($expression, $key) {
+            $returnValue = "";
 
-        while (count($matches) > 0) {
-            if (!empty($match = array_shift($matches))) {
-                array_unshift($matches, $match);
-                break;
-            }
-        }
+            return rtrim($returnValue . $expression->getQuerySql()) . "\n";
+        }, $this->getExpressions(), array_keys($this->getExpressions()));
 
-        $matches = array_map(fn($match) => empty($match) ? null : $match, $matches);
+        $sql =  rtrim(implode("", $expressionsSql));
 
-        print_r($matches);
-
-        return null;
+        return $this->querySql = $sql . "\n";
     }
 
-    /**
-     * Creates a new Join clause
-     * 
-     * @param string|IExpression ...$columnIdentifiers 
-     * 
-     * @return Join
-     */
-    public static function new(...$expressions): Join {
+
+    public static function getBeginClauseStatement(): string {
+        return "";
+    }
+
+    public static function getExpressionInterfaceType(): Type {
+        return Type::new(IJoinExpression::class);
+    }
+
+    public static function new(...$expressions): self {
         return new self(...$expressions);
     }
 }
+
+Join::registerExpressionConstructor(
+    "Columns Compare Parser",
+    function($string): ?IJoinExpression {
+        if (!is_string($string)) {
+            return null;
+        }
+
+        $tablePattern = Preg::TABLE_IDENTIFIER_WITH_OPTIONAL_ALIAS_PATTERN;
+        $operandPattern = Preg::COLUMN_IDENTIFIER_PATTERN;
+        $operatorPattern = "(?:" . ComparisonOperator::getPregMatchPattern() . ")";
+
+        $pattern = $tablePattern . "(?:\s+on\s+)" . $operandPattern . $operatorPattern . $operandPattern . "\s*\$";
+
+        if (!preg_match("/^" . $pattern . "\s*\$/i", $string, $matches)) {
+            return null;
+        }
+
+        $table = TableIdentifier::new($matches[2], $matches[1], $matches[3]);
+        $leftOperand = ColumnIdentifier::new($matches[6], $matches[5], $matches[4], null);
+        $operator = ComparisonOperator::tryFrom($matches[7]);
+        $rightOperand = ColumnIdentifier::new($matches[10], $matches[9], $matches[8], null);
+
+        return new class($table, $leftOperand, $operator, $rightOperand) extends JoinExpression implements IJoinExpression {
+            public function __construct(TableIdentifier $table, ColumnIdentifier $leftOperand, ComparisonOperator $operator, ColumnIdentifier $rightOperand) {
+                parent::__construct([$table, $leftOperand, $operator, $rightOperand]);
+            }
+
+            public function getQuerySql(): string {
+                list ($table, $leftOperand, $operator, $rightOperand) = $this->getExpression();
+
+                $sql = $table->getQuerySql() . " ON " . $leftOperand->getQuerySql() . " " . $operator . " " . $rightOperand->getQuerySql();
+
+                return $table->getQuerySql() . " ON " . $leftOperand->getQuerySql() . " " . $operator . " " . $rightOperand->getQuerySql();
+            }
+
+            public function getQueryParameters(): array {
+                list ($table, $leftOperand, $operator, $rightOperand) = $this->getExpression();
+                return $leftOperand->getQueryParameters() + $rightOperand->getQueryParameters();
+            }
+        };
+    }
+, 0);

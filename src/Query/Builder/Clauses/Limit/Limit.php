@@ -46,12 +46,10 @@ Limit::registerExpressionConstructor(
         if ($intValue < 1) {
             return null;
         }
-        
-        return new class($intValue) extends CoreObject implements ILimitExpression {
-            private int $value;
 
-            public function __construct(int $value) {
-                $this->value = $value;
+        return new class($intValue) extends LimitExpression implements ILimitExpression {
+            public function __construct($limit) {
+                parent::__construct($limit);
             }
 
             public function getQuerySql(): string {
@@ -59,7 +57,7 @@ Limit::registerExpressionConstructor(
             }
 
             public function getQueryParameters(): array {
-                return ["p" . $this->getObjectId() => $this->value];
+                return ["p" . $this->getObjectId() => $this->getExpression()];
             }
         };
     }

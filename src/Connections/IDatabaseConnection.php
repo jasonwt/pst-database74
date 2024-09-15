@@ -7,7 +7,6 @@ namespace Pst\Database\Connections;
 use Pst\Database\Query\IQueryResults;
 
 interface IDatabaseConnection {
-
     /**
      * Escapes a string for use in a query
      * 
@@ -34,10 +33,13 @@ interface IDatabaseConnection {
     /**
      * Perform a query on the database
      * 
-     * @param string $query 
-     * @param array $parameters 
+     * @param string|IQuery $query 
+     * @param null|array $parameters 
      * 
      * @return IQueryResults 
+     * 
+     * @throws InvalidArgumentException
+     * @throws DatabaseException
      */
-    public function query(string $query, array $parameters = []);
+    public function query($query, ?array $parameters = null): IQueryResults;
 }

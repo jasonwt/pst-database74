@@ -81,7 +81,7 @@ class ColumnIdentifier extends CoreObject implements IColumnIdentifier {
     public static function tryParse(string $input): ?self {
         $Preg = Preg::COLUMN_IDENTIFIER_WITH_OPTIONAL_ALIAS_PATTERN;
 
-        if (!preg_match("/^" . $Preg . "$/i", $input, $matches)) {
+        if (!preg_match("/^" . $Preg . "\s*$/i", $input, $matches)) {
             return null;
         }
 

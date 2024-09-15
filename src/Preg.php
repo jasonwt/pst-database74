@@ -26,6 +26,7 @@ final class Preg {
     const COLUMN_IDENTIFIER_WITH_OPTIONAL_ALIAS_PATTERN = self::COLUMN_IDENTIFIER_PATTERN . "(?:\s*" . self::ALIAS_PATTERN . ")?";
 
     const STRING_LITERAL_PATTERN = "(" . self::SINGLE_QUOTED_STRING_PATTERN . "|" . self::DOUBLE_QUOTED_STRING_PATTERN . ")";
+    const STRING_LITERAL_WITH_OPTIONAL_ALIAS_PATTERN = self::STRING_LITERAL_PATTERN . "(?:\s*" . self::ALIAS_PATTERN . ")?";
     
     private function __construct() {}
 
