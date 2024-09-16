@@ -9,25 +9,29 @@ use Pst\Core\Collections\Enumerator;
 use Pst\Core\Collections\IEnumerable;
 
 use Pst\Database\Query\IQuery;
+
 use Pst\Database\Query\Builder\Clauses\IClause;
+use Pst\Database\Query\Builder\Clauses\Set\Set;
+
 use Pst\Database\Query\Builder\Clauses\From\From;
 use Pst\Database\Query\Builder\Clauses\Join\Join;
 use Pst\Database\Query\Builder\Clauses\Limit\Limit;
 use Pst\Database\Query\Builder\Clauses\Where\Where;
+use Pst\Database\Query\Builder\Clauses\Update\Update;
 use Pst\Database\Query\Builder\Clauses\Insert\Insert;
 use Pst\Database\Query\Builder\Clauses\Offset\Offset;
 use Pst\Database\Query\Builder\Clauses\Select\Select;
 use Pst\Database\Query\Builder\Clauses\Having\Having;
 use Pst\Database\Query\Builder\Clauses\GroupBy\GroupBy;
 use Pst\Database\Query\Builder\Clauses\OrderBy\OrderBy;
+use Pst\Database\Query\Builder\Clauses\DeleteFrom\DeleteFrom;
 use Pst\Database\Query\Builder\Clauses\ReplaceInto\ReplaceInto;
 
 use Pst\Core\Exceptions\NotImplementedException;
 
 use InvalidArgumentException;
-use Pst\Database\Query\Builder\Clauses\DeleteFrom\DeleteFrom;
-use Pst\Database\Query\Builder\Clauses\Set\Set;
-use Pst\Database\Query\Builder\Clauses\Update\Update;
+
+
 
 trait QueryBuilderTrait {
     private array $queryBuilderTraitClauses = [
