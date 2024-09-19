@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure\Index;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 interface IIndexReader {
-    public function ReadIndexes(string $schemaName, string $tableName): IEnumerable;
-    public function ReadIndex(string $schemaName, string $tableName, string $indexName): Index;
+    public function readIndex(string $schemaName, string $tableName, string $indexName): Index;
+    public function readIndexes(string $schemaName, string $tableName): IReadOnlyCollection;
 }

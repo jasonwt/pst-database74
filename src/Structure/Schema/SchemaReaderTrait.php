@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure\Schema;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Types\Type;
+use Pst\Core\Collections\ReadOnlyCollection;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 
 trait SchemaReaderTrait {
+    private static array $schemaReaderTraitCache = [];
+
     /**
      * Loads sql Schemas
      * 
-     * @return IEnumerable 
+     * @return IReadOnlyCollection 
      */
-    public function readSchemas(): IEnumerable{
-        return $this->implReadSchemas();
+    public function readSchemas(): IReadOnlyCollection{
+        $key = "*";
+        
+        return static::$schemaReaderTraitCache[$key] ??= new ReadOnlyCollection (
+            $this->implReadSchemas()->toArray(function($v) { return $v->name(); }),
+            Type::class(Schema::class)
+        );
     }
 
     /**
@@ -34,7 +43,9 @@ trait SchemaReaderTrait {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         }
 
-        return $this->implReadSchemas($schemaName);
+        $key = trim($schemaName);
+
+        return static::$schemaReaderTraitCache[$key] ??= $this->implReadSchemas($schemaName);
     }
 
     /**

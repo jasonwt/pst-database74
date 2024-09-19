@@ -4,31 +4,39 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure\Index;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Types\Type;
+use Pst\Core\Collections\ReadOnlyCollection;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 
-trait IndexReaderTrait {    
+trait IndexReaderTrait {
+    private static array $indexReaderTraitCache = [];
     /**
      * Loads a sql indexes
      * 
      * @param string $schemaName 
      * @param string $tableName 
      * 
-     * @return IEnumerable 
+     * @return IReadOnlyCollection 
      * 
      * @throws InvalidArgumentException 
      */
-    public function readIndexes(string $schemaName, string $tableName): IEnumerable {
+    public function readIndexes(string $schemaName, string $tableName): IReadOnlyCollection {
         if (!Validator::validateSchemaName($schemaName)) {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         } else if (!Validator::validateTableName($tableName)) {
             throw new InvalidArgumentException("Invalid table name.: '$tableName'");
         }
 
-        return $this->implReadIndexes($schemaName, $tableName);
+        $key = trim($schemaName) . "." . trim($tableName);
+
+        return static::$indexReaderTraitCache[$key] ??= new ReadOnlyCollection (
+            $this->implReadIndexes($schemaName, $tableName)->toArray(function($v) { return $v->name(); }),
+            Type::class(Index::class)
+        );
     }
 
     /**
@@ -51,7 +59,9 @@ trait IndexReaderTrait {
             throw new InvalidArgumentException("Invalid index name.: '$indexName'");
         }
 
-        return $this->implReadIndexes($schemaName, $tableName, $indexName);
+        $key = trim($schemaName) . "." . trim($tableName) . "." . trim($indexName);
+
+        return (static::$indexReaderTraitCache[$key] ??= $this->implReadIndexes($schemaName, $tableName, $indexName));
     }
 
     /**

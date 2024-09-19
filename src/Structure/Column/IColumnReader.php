@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure\Column;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 interface IColumnReader {
-    public function ReadColumns(string $schemaName, string $tableName): IEnumerable;
-    public function ReadColumn(string $schemaName, string $tableName, string $columnName): Column;
+    public function readColumns(string $schemaName, string $tableName): IReadOnlyCollection;
+    public function readColumn(string $schemaName, string $tableName, string $columnName): Column;
 }

@@ -421,4 +421,7 @@ class ColumnType extends Enum {
 
         return $phpType;
     }
+
+
+    
 }

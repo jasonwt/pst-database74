@@ -11,6 +11,8 @@ use Pst\Database\Enums\ColumnType;
 use Pst\Database\Enums\ColumnDefaultValue;
 use Pst\Database\Structure\Validator;
 
+use Pst\Core\Exceptions\NotImplementedException;
+
 use InvalidArgumentException;
 
 class Column extends CoreObject{
@@ -96,5 +98,63 @@ class Column extends CoreObject{
 
     public function indexType(): ?IndexType {
         return $this->indexType;
+    }
+
+    public function tryGetDefaultEvaluatedValue(&$evaluatedValue): bool {
+        $columnType = $this->type();
+        $columnDefaultValue = $this->defaultValue();
+
+        if (!$columnDefaultValue instanceof ColumnDefaultValue) {
+            $evaluatedValue = $columnDefaultValue;
+        } else {
+            if ($columnDefaultValue == ColumnDefaultValue::NONE()) {
+                $evaluatedValue = null;
+                return false;
+            } else if ($columnDefaultValue == ColumnDefaultValue::NULL()) {
+                $evaluatedValue = null;
+            } else if ($columnDefaultValue == ColumnDefaultValue::CURRENT_TIMESTAMP()) {
+                if ($columnType == ColumnType::TIMESTAMP()) {
+                    $evaluatedValue = time();
+                } else if ($columnType == ColumnType::DATETIME()) {
+                    $evaluatedValue = date("Y-m-d H:i:s");
+                } else if ($columnType == ColumnType::DATE()) {
+                    $evaluatedValue = date("Y-m-d");
+                } else if ($columnType == ColumnType::TIME()) {
+                    $evaluatedValue = date("H:i:s");
+                }
+            } else {
+                $evaluatedValue = null;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function tryGetEvaluatedValue($value, &$evaluatedValue): bool {
+        $columnType = $this->type();
+
+        throw new NotImplementedException("Not implemented");
+    }
+
+
+    public function defaultPhpValue() {
+        if ($this->defaultValue === ColumnDefaultValue::NULL()) {
+            return null;
+        } else if ($this->defaultValue === ColumnDefaultValue::NONE()) {
+            if ($this->type()->isIntegerType()) {
+                return 0;
+            } else if ($this->type()->isStringType()) {
+                return "";
+            } else {
+                throw new NotImplementedException("Default value not implemented");
+            }
+        } else if ($this->defaultValue === ColumnDefaultValue::CURRENT_TIMESTAMP()) {
+            return time();
+        } else if ($this->defaultValue === ColumnDefaultValue::UUID()) {
+            throw new NotImplementedException("UUID not implemented");
+        } else {
+            return $this->defaultValue;
+        }
     }
 }

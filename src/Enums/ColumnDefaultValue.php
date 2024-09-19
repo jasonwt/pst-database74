@@ -31,4 +31,6 @@ class ColumnDefaultValue extends Enum {
     public static function CURRENT_TIMESTAMP(): ColumnDefaultValue {
         return new ColumnDefaultValue("CURRENT_TIMESTAMP");
     }
+
+    
 }

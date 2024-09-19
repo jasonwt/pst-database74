@@ -4,29 +4,38 @@ declare(strict_types=1);
 
 namespace Pst\Database\Structure\Table;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Types\Type;
+use Pst\Core\Collections\ReadOnlyCollection;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 use Pst\Database\Structure\Validator;
 
 use InvalidArgumentException;
 
 trait TableReaderTrait {
+    private static array $tableReaderTraitCache = [];
+
     /**
      * Loads sql Tables
      * 
      * @param string $schemaName 
      * @param string $tableName 
      * 
-     * @return IEnumerable 
+     * @return IReadOnlyCollection 
      * 
      * @throws InvalidArgumentException 
      */
-    public function readTables(string $schemaName): IEnumerable {
+    public function readTables(string $schemaName): IReadOnlyCollection {
         if (!Validator::validateSchemaName($schemaName)) {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         }
 
-        return $this->implReadTables($schemaName);
+        $key = trim($schemaName);
+
+        return static::$tableReaderTraitCache[$key] ??= new ReadOnlyCollection (
+            $this->implReadTables($schemaName)->toArray(function($v) { return $v->name(); }),
+            Type::class(Table::class)
+        );
     }
 
     /**
@@ -46,7 +55,9 @@ trait TableReaderTrait {
             throw new InvalidArgumentException("Invalid table name.: '$tableName'");
         }
 
-        return $this->implReadTables($schemaName, $tableName);
+        $key = trim($schemaName) . "." . trim($tableName);
+
+        return static::$tableReaderTraitCache[$key] ??= $this->implReadTables($schemaName, $tableName);
     }
 
     /**

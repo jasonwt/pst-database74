@@ -165,7 +165,7 @@ final class Validator {
      * 
      * @return bool|string 
      */
-    public static function validateColumnValue(Column $column, mixed $value) {
+    public static function validateColumnValue(Column $column, $value) {
         $columnType = $column->type();
         $isNullable = $column->isNullable();
 
@@ -229,6 +229,8 @@ final class Validator {
                         )
                     )
                 );
+
+                $minValue = -($maxValue + 1);
 
                 if ($columnTypeIsUnsigned) {
                     $maxValue = ($maxValue * 2) + 1;

@@ -6,8 +6,8 @@ namespace Pst\Database\Structure\Index;
 
 use Pst\Core\CoreObject;
 use Pst\Core\Types\TypeHintFactory;
-use Pst\Core\Collections\Enumerator;
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Collections\ReadOnlyCollection;
+use Pst\Core\Collections\IReadOnlyCollection;
 
 use Pst\Database\Enums\IndexType;
 use Pst\Database\Structure\Validator;
@@ -18,6 +18,7 @@ class Index extends CoreObject {
     private string $schemaName;
     private string $tableName;
     private string $name;
+    
     private IndexType $type;
 
     private array $columns;
@@ -68,7 +69,7 @@ class Index extends CoreObject {
         return $this->type;
     }
 
-    public function columns(): IEnumerable {
-        return Enumerator::new($this->columns, TypeHintFactory::string());
+    public function columns(): IReadOnlyCollection {
+        return ReadOnlyCollection::new($this->columns, TypeHintFactory::string());
     }
 }

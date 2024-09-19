@@ -28,7 +28,7 @@ interface IDatabaseConnection {
      * 
      * @return string 
      */
-    public function lastInsertId(): string;
+    public function lastInsertId(): ?string;
 
     /**
      * Perform a query on the database
