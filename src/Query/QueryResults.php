@@ -4,17 +4,20 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query;
 
+use Pst\Core\CoreObject;
 use Pst\Core\Types\ITypeHint;
-use Pst\Core\Collections\Traits\LinqTrait;
+use Pst\Core\Enumerable\ImmutableEnumerableLinqTrait;
 use Pst\Core\Exceptions\NotImplementedException;
 
 use Closure;
 use Iterator;
 use Traversable;
+use IteratorAggregate;
 
-class QueryResults implements IQueryResults {
-    use LinqTrait {
-        count as private linqCount;
+class QueryResults extends CoreObject implements IteratorAggregate, IQueryResults {
+    use ImmutableEnumerableLinqTrait {
+        linqKeys as keys;
+        linqValues as values;
     }
 
     private Iterator $resultsIterator;

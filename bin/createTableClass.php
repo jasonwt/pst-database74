@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use Pst\Core\Collections\Enumerator;
+use Pst\Core\Enumerable\Enumerator;
 use Pst\Database\Connections\Impl\MysqlPdoConnection;
-use Pst\Database\Structure\Column;
-use Pst\Database\Structure\ColumnDefaultValue;
-use Pst\Database\Structure\Readers\Impl\MysqlStructureReader;
+use Pst\Database\Column;
+use Pst\Database\ColumnDefaultValue;
+use Pst\Database\Readers\Impl\MysqlStructureReader;
 use Pst\Database\Validator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -163,9 +163,9 @@ $newTableRecord = $tableStructure->constructTableRecord();
 // use Pst\Core\CoreObject;
 // use Pst\Core\Traits\PropertiesArrayTrait;
 
-// use Pst\Database\Structure\IndexType;
-// use Pst\Database\Structure\ColumnType;
-// use Pst\Database\Structure\ColumnDefaultValue;
+// use Pst\Database\IndexType;
+// use Pst\Database\ColumnType;
+// use Pst\Database\ColumnDefaultValue;
 
 // class $className extends CoreObject {
 //     use PropertiesArrayTrait {

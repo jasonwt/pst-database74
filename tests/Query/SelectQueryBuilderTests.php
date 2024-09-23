@@ -6,7 +6,7 @@ declare(strict_types=1);
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-use Pst\Core\Collections\Enumerator;
+use Pst\Core\Enumerable\Enumerator;
 use Pst\Database\Query\Builder\Clauses\Having\Having;
 use Pst\Database\Query\Builder\Clauses\Select\Select;
 use Pst\Database\Query\Builder\Clauses\Where\Where;

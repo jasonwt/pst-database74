@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query\Builder;
 
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Enumerable\IEnumerable;
 use Pst\Database\Query\Builder\Clauses\IClause;
 
 interface IQueryBuilder {

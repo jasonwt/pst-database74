@@ -6,10 +6,10 @@ declare(strict_types=1);
 
 namespace Pst\Database\Tests\MysqlConnectionTests;
 
-use Pst\Database\Structure\ColumnDefaultValue;
-use Pst\Database\Structure\ColumnType;
-use Pst\Database\Structure\IndexType;
-use Pst\Database\Structure\Readers\Impl\MysqlStructureReader;
+use Pst\Database\ColumnDefaultValue;
+use Pst\Database\ColumnType;
+use Pst\Database\IndexType;
+use Pst\Database\Readers\Impl\MysqlStructureReader;
 
 use Pst\Database\Connections\Impl\MysqliConnection;
 

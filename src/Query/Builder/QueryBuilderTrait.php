@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Pst\Database\Query\Builder;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\Enumerator;
-use Pst\Core\Collections\IEnumerable;
+use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\IEnumerable;
 
 use Pst\Database\Query\IQuery;
 

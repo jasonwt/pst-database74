@@ -8,15 +8,15 @@ namespace Pst\Database\Tests\MysqlConnectionTests;
 
 
 use Pst\Database\Connections\Impl\MysqlPdoConnection;
-use Pst\Database\Structure\Readers\Impl\MysqlStructureReader;
+use Pst\Database\Readers\Impl\MysqlStructureReader;
 
 use Pst\Testing\Should;
 
 use PDO;
 use Exception;
-use Pst\Database\Structure\ColumnDefaultValue;
-use Pst\Database\Structure\ColumnType;
-use Pst\Database\Structure\IndexType;
+use Pst\Database\ColumnDefaultValue;
+use Pst\Database\ColumnType;
+use Pst\Database\IndexType;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 

@@ -7,7 +7,7 @@ namespace Pst\Database\Tests;
 require_once __DIR__ . "/../vendor/autoload.php";
 
 use Pst\Database\Column;
-use Pst\Database\Enums\ColumnType;
+use Pst\Database\Column\ColumnType;
 
 
 $columnBuilder = Column::builder("schemaName", "tableName", "columnName");

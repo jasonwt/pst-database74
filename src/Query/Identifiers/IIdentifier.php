@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Pst\Database\Query\Identifiers;
 
-use Pst\Core\ITryParse;
-use Pst\Core\ICoreObject;
+use Pst\Core\Interfaces\ITryParse;
+use Pst\Core\Interfaces\ICoreObject;
 
 use Pst\Database\Query\IAliasable;
 use Pst\Database\Query\IQueryable;
