@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Pst\Core\Interfaces\IToString;
-use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\Enumerable;
 use Pst\Core\Collections\IReadonlyCollection;
 use Pst\Core\DependencyInjection\DI;
 use Pst\Core\DynamicPropertiesObject\DynamicPropertiesObject;

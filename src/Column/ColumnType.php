@@ -404,7 +404,7 @@ class ColumnType extends Enum {
             $typeHintString = '?' . $typeHintString;
         }
 
-        return TypeHintFactory::tryParse($typeHintString);
+        return TypeHintFactory::tryParseTypeName($typeHintString);
     }
 
     public function toPhpType(bool $isNullable = false): string {

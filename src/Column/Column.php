@@ -13,6 +13,7 @@ use Pst\Database\Index\IndexType;
 use Pst\Core\Exceptions\NotImplementedException;
 
 use InvalidArgumentException;
+use Pst\Core\Interfaces\IToString;
 
 class Column extends CoreObject implements IColumn {
     private string $schemaName;
@@ -44,15 +45,15 @@ class Column extends CoreObject implements IColumn {
         $defaultValue ??= ColumnDefaultValue::NONE();
 
         if (Validator::validateSchemaName($this->schemaName = $schemaName) !== true) {
-            throw new \InvalidArgumentException("Invalid schema name: '$schemaName'.");
+            throw new InvalidArgumentException("Invalid schema name: '$schemaName'.");
         }
 
         if (Validator::validateTableName($this->tableName = $tableName) !== true) {
-            throw new \InvalidArgumentException("Invalid table name: '$tableName'.");
+            throw new InvalidArgumentException("Invalid table name: '$tableName'.");
         }
 
         if (Validator::validateColumnName($this->name = $name) !== true) {
-            throw new \InvalidArgumentException("Invalid column name: '$name'.");
+            throw new InvalidArgumentException("Invalid column name: '$name'.");
         }
 
         $this->type = $type;
@@ -97,6 +98,30 @@ class Column extends CoreObject implements IColumn {
 
     public function indexType(): ?IndexType {
         return $this->indexType;
+    }
+
+    public function toString(): string {
+        // private string $schemaName = "sct2"
+        // private string $tableName = "administrators"
+        // private string $name = "email"
+        // private ColumnType $type = IndexType::CHAR
+        // private null|int $length = 128
+        // private mixed $defaultValue = IndexType::NONE
+        // private bool $isNullable = false
+        // private null|IndexType $indexType = null
+
+        
+        $output = $this->schemaName . "." . $this->tableName . "." . $this->name . "|" . $this->type;
+
+        if ($this->length !== null) {
+            $output .= "(" . $this->length . ")";
+        }
+
+        $output .= "|" . ($this->isNullable ? "NULL" : "NOT NULL");
+        $output .= "|" . $this->defaultValue;
+        $output .= "|" . $this->indexType;
+    
+        return $output;
     }
 
     public function tryGetDefaultEvaluatedValue(&$evaluatedValue): bool {

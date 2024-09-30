@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Pst\Database\Column;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Enumerable\IEnumerable;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\RewindableEnumerable;
+use Pst\Core\Enumerable\IRewindableEnumerable;
 
 use Pst\Database\Validator;
 
@@ -26,7 +25,7 @@ trait ColumnReaderTrait {
      * 
      * @throws InvalidArgumentException 
      */
-    public function readColumns(string $schemaName, string $tableName): IReadonlyCollection {
+    public function readColumns(string $schemaName, string $tableName): IRewindableEnumerable {
         if (!Validator::validateSchemaName($schemaName)) {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         } else if (!Validator::validateTableName($tableName)) {
@@ -35,10 +34,12 @@ trait ColumnReaderTrait {
 
         $key = trim($schemaName) . "." . trim($tableName);
 
-        return static::$columnReaderTraitCache[$key] ??= new ReadonlyCollection(
-            $this->implReadColumns($schemaName, $tableName)->toArray(function($v) { return $v->name(); }), 
-            Type::class(Column::class)
-        );
+        return static::$columnReaderTraitCache[$key] ??= $this->implReadColumns($schemaName, $tableName)->keyMap(function($v) { return $v->name(); });
+        
+        // RewindableEnumerable::create(
+        //     $this->implReadColumns($schemaName, $tableName)->toArray(function($v) { return $v->name(); }), 
+        //     Type::class(Column::class)
+        // );
     }
 
     /**
@@ -73,7 +74,7 @@ trait ColumnReaderTrait {
      * @param string $tableName 
      * @param null|string $columnName 
      * 
-     * @return IEnumerable|Column 
+     * @return IRewindableEnumerable 
      */
-    protected abstract function implReadColumns(string $schemaName, string $tableName, ?string $columnName = null);
+    protected abstract function implReadColumns(string $schemaName, string $tableName, ?string $columnName = null): IRewindableEnumerable;
 }

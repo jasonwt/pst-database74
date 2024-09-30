@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\TableRow;
 
 use Pst\Core\Events\IEventSubscriptions;
-use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\Enumerable;
 use Pst\Core\Collections\IReadonlyCollection;
 use Pst\Core\DynamicPropertiesObject\DynamicPropertiesObjectTrait;
 
@@ -13,6 +13,7 @@ use Pst\Database\Column\ColumnDefaultValue;
 
 use Traversable;
 use InvalidArgumentException;
+use Pst\Core\Enumerable\Enumerable;
 
 trait aTableRowTrait {
     use TableRowInfoTrait;
@@ -35,7 +36,7 @@ trait aTableRowTrait {
 
         $columnValues = ($columnValues instanceof Traversable) ? iterator_to_array($columnValues) : $columnValues;
 
-        $columnValues = Enumerator::new($columnValues + static::defaultValues())->
+        $columnValues = Enumerable::create($columnValues + static::defaultValues())->
             toReadonlyCollection();
 
         $invalidColumnNames = $columnValues->
@@ -109,7 +110,7 @@ trait aTableRowTrait {
 
     // //     $errors = [];
 
-    // //     $columnValues = Enumerator::new($columnValues)->
+    // //     $columnValues = Enumerable::create($columnValues)->
     // //         selectKey(function($columnValue, $columnName) use ($errors) {
     // //             if (!static::validatePropertyName($columnName = trim($columnName))) {
     // //                 $errors[$columnName] = "$columnName: invalid column name.";
@@ -133,7 +134,7 @@ trait aTableRowTrait {
     // //         });
     // //     $columnValues += static::defaultValues();
 
-    // //     $invalidColumnNames = Enumerator::new($columnValues)->
+    // //     $invalidColumnNames = Enumerable::create($columnValues)->
     // //         where(function ($_, $columnName) {
     // //             return !static::columnExists($columnName);
     // //         })->

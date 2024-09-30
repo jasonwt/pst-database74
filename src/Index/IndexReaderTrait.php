@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Pst\Database\Index;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\RewindableEnumerable;
+use Pst\Core\Enumerable\IRewindableEnumerable;
 
 use Pst\Database\Validator;
 
@@ -20,11 +20,11 @@ trait IndexReaderTrait {
      * @param string $schemaName 
      * @param string $tableName 
      * 
-     * @return IReadonlyCollection 
+     * @return IRewindableEnumerable 
      * 
      * @throws InvalidArgumentException 
      */
-    public function readIndexes(string $schemaName, string $tableName): IReadonlyCollection {
+    public function readIndexes(string $schemaName, string $tableName): IRewindableEnumerable {
         if (!Validator::validateSchemaName($schemaName)) {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         } else if (!Validator::validateTableName($tableName)) {
@@ -33,7 +33,7 @@ trait IndexReaderTrait {
 
         $key = trim($schemaName) . "." . trim($tableName);
 
-        return static::$indexReaderTraitCache[$key] ??= new ReadonlyCollection (
+        return static::$indexReaderTraitCache[$key] ??= RewindableEnumerable::create(
             $this->implReadIndexes($schemaName, $tableName)->toArray(function($v) { return $v->name(); }),
             Type::class(Index::class)
         );
@@ -71,7 +71,7 @@ trait IndexReaderTrait {
      * @param string $tableName 
      * @param null|string $indexName 
      * 
-     * @return IEnumerable|Index 
+     * @return IRewindableEnumerable 
      */
-    protected abstract function implReadIndexes(string $schemaName, string $tableName, ?string $indexName = null);
+    protected abstract function implReadIndexes(string $schemaName, string $tableName, ?string $indexName = null): IRewindableEnumerable;
 }

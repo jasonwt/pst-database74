@@ -6,16 +6,15 @@ namespace Pst\Database\Table;
 
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\Enumerable;
+use Pst\Core\Enumerable\IRewindableEnumerable;
+use Pst\Core\Enumerable\RewindableEnumerable;
 
-use Pst\Database\Index\IndexType;
 use Pst\Database\Validator;
-use Pst\Database\Index\Index;
-use Pst\Database\Column\Column;
+use Pst\Database\Index\IIndex;
+use Pst\Database\Column\IColumn;
 
 use InvalidArgumentException;
-use Pst\Core\Enumerable\Enumerator;
 
 class Table extends CoreObject {
     private static array $cache = [];
@@ -23,24 +22,25 @@ class Table extends CoreObject {
     private string $schemaName;
     private string $name;
 
-    private IReadonlyCollection $columns;
-    private IReadonlyCollection $indexes;
-    private IReadonlyCollection $uniqueIndexes;
-    private ?Index $primaryIndex = null;
-    private ?Column $autoIncrementingColumn = null;
+    private IRewindableEnumerable $columns;
+    private IRewindableEnumerable $indexes;
+    private IRewindableEnumerable $uniqueIndexes;
+    private ?IIndex $primaryIndex = null;
+    private ?IColumn $autoIncrementingColumn = null;
 
-    public function __construct(string $schemaName, string $name, array $columns = [], array $indexes = []) {
+    public function __construct(string $schemaName, string $name, iterable $columns = [], iterable $indexes = []) {
         if (Validator::validateSchemaName($this->schemaName = $schemaName) !== true) {
-            throw new \InvalidArgumentException("Invalid schema name: '$schemaName'.");
+            throw new InvalidArgumentException("Invalid schema name: '$schemaName'.");
         }
 
         if (Validator::validateTableName($this->name = $name) !== true) {
-            throw new \InvalidArgumentException("Invalid table name: '$name'.");
+            throw new InvalidArgumentException("Invalid table name: '$name'.");
         }
 
-        $this->columns = ReadonlyCollection::new(array_map(function($column) {
-            if (!$column instanceof Column) {
-                throw new InvalidArgumentException('Column must be an instance of Column.');
+
+        $this->columns = $columns instanceof RewindableEnumerable ? $columns : RewindableEnumerable::create(array_map(function($column) {
+            if (!$column instanceof IColumn) {
+                throw new InvalidArgumentException('IColumn must be an instance of IColumn.');
             }
 
             if ($column->type()->isAutoIncrementing()) {
@@ -48,13 +48,13 @@ class Table extends CoreObject {
             }
 
             return $column;
-        }, $columns), Type::class(Column::class));
+        }, $columns), Type::class(IColumn::class), Type::int());
 
         $uniqueIndexes = [];
 
-        $this->indexes = ReadonlyCollection::new(array_map(function($index) use (&$uniqueIndexes) {
-            if (!$index instanceof Index) {
-                throw new InvalidArgumentException('Index must be an instance of Index.');
+        $this->indexes = $indexes instanceof RewindableEnumerable ? $indexes : RewindableEnumerable::create(array_map(function($index) use (&$uniqueIndexes) {
+            if (!$index instanceof IIndex) {
+                throw new InvalidArgumentException('IIndex must be an instance of IIndex.');
             }
 
             $indexType = $index->type();
@@ -68,9 +68,9 @@ class Table extends CoreObject {
             }
 
             return $index;
-        }, $indexes), Type::class(Index::class));
+        }, $indexes), Type::class(IIndex::class));
 
-        $this->uniqueIndexes = ReadonlyCollection::new($uniqueIndexes, Type::class(Index::class));
+        $this->uniqueIndexes = RewindableEnumerable::create($uniqueIndexes, Type::class(IIndex::class));
     }
 
     public function schemaName(): string {
@@ -81,27 +81,27 @@ class Table extends CoreObject {
         return $this->name;
     }
 
-    public function columns(): IReadonlyCollection {
+    public function columns(): IRewindableEnumerable {
         return $this->columns;
     }
 
-    public function indexes(): IReadonlyCollection {
+    public function indexes(): IRewindableEnumerable {
         return $this->indexes;
     }
 
-    public function primaryIndex(): ?Index {
+    public function primaryIndex(): ?IIndex {
         return $this->primaryIndex;
     }
 
-    public function autoIncrementingColumn(): ?Column {
+    public function autoIncrementingColumn(): ?IColumn {
         return $this->autoIncrementingColumn;
     }
 
-    public function primaryKeyColumns(): IReadonlyCollection {
-        return !is_null($this->primaryIndex) ? $this->primaryIndex->columns() : Enumerator::empty();
+    public function primaryKeyColumns(): IRewindableEnumerable {
+        return !is_null($this->primaryIndex) ? $this->primaryIndex->columns() : Enumerable::empty();
     }
 
-    public function uniqueIndexes(): IReadonlyCollection {
+    public function uniqueIndexes(): IRewindableEnumerable {
         return $this->uniqueIndexes;
     }
 }

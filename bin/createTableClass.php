@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\Enumerable;
 use Pst\Database\Connections\Impl\MysqlPdoConnection;
 use Pst\Database\Column;
 use Pst\Database\ColumnDefaultValue;
@@ -132,19 +132,19 @@ $newTableRecord = $tableStructure->constructTableRecord();
 // }, []);
 
 // $addPropertiesCode = trim(implode("\n        ", $addPropertiesArray));
-// $setPropertiesValuesCode = trim(implode("\n        ", Enumerator::new($properties)->select(function($property, $index) {
+// $setPropertiesValuesCode = trim(implode("\n        ", Enumerable::create($properties)->select(function($property, $index) {
 //     return "\$this->setPropertyValue('{$property['name']}', \${$property['name']});";
 // })->toArray()));
 
-// $propertiesGetters = trim(Enumerator::new($properties)->select(function($property, $index) {
+// $propertiesGetters = trim(Enumerable::create($properties)->select(function($property, $index) {
 //     return "public function {$property['name']}(): {$property['phpType']} {\n        return \$this->getPropertyValue('{$property['name']}');\n    }";
 // })->join("\n\n    "));
 
-// $propertySetters = trim(Enumerator::new($properties)->select(function($property, $index) {
+// $propertySetters = trim(Enumerable::create($properties)->select(function($property, $index) {
 //     return "public function set{$property['name']}(?{$property['phpType']} \${$property['name']}) {\n        \$this->setPropertyValue('{$property['name']}', \${$property['name']});\n    }";
 // })->join("\n\n    "));
 
-// $constructorParameters = trim(Enumerator::new($properties)->select(function($property, $index) {
+// $constructorParameters = trim(Enumerable::create($properties)->select(function($property, $index) {
 //     return $property['phpType'] . " \${$property['name']}";
 // })->join(", "));
 

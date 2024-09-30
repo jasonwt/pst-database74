@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\TableRow;
 
 use Pst\Core\Events\IEventSubscriptions;
-use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\Enumerable;
 use Pst\Core\Collections\IReadonlyCollection;
 use Pst\Core\Collections\ReadonlyCollection;
 use Pst\Core\DynamicPropertiesObject\DynamicPropertiesObjectTrait;
@@ -16,7 +16,6 @@ use Pst\Database\Exceptions\QueryConstraintException;
 
 use Traversable;
 use InvalidArgumentException;
-use Pst\Core\Enumerable\IEnumerable;
 
 trait TableRowTrait {
     use TableRowInfoTrait;
@@ -50,7 +49,7 @@ trait TableRowTrait {
 
         $columnValues = ($columnValues instanceof Traversable) ? iterator_to_array($columnValues) : $columnValues;
 
-        $columnValues = Enumerator::new($columnValues + static::defaultValues())->
+        $columnValues = Enumerable::create($columnValues + static::defaultValues())->
             toReadonlyCollection();
 
         $invalidColumnNames = $columnValues->
@@ -86,7 +85,7 @@ trait TableRowTrait {
      * @return IReadonlyCollection
      */
     private static function filterQueryParameters(iterable $queryParameters): IReadonlyCollection {
-        return Enumerator::new($queryParameters)->select(function($columnValue, $_) {
+        return Enumerable::create($queryParameters)->select(function($columnValue, $_) {
             if ($columnValue instanceof ColumnDefaultValue) {
                 if ($columnValue->value() === "NULL") {
                     return ColumnDefaultValue::NULL();
@@ -110,7 +109,7 @@ trait TableRowTrait {
      * @return bool
      */
     private static function sanitizePredicates(iterable $predicates, &$collectionOrErrors): bool {
-        $errors = Enumerator::new($predicates)->
+        $errors = Enumerable::create($predicates)->
             select(function($_, $columnName) {
                 if (!static::validatePropertyName($columnName = trim($columnName))) {
                     return "$columnName: invalid column name.";
@@ -128,7 +127,7 @@ trait TableRowTrait {
             return false;
         }
 
-        $collectionOrErrors = static::filterQueryParameters(Enumerator::new($predicates));
+        $collectionOrErrors = static::filterQueryParameters(Enumerable::create($predicates));
         return true;
     }
 
@@ -221,7 +220,7 @@ trait TableRowTrait {
         // the current database column values we need to start with the previous column values and then
         // add the current column values to it (which will not replace the previous column values) with
         // the way php's array addition works
-        $currentDatabaseColumnValues = ReadonlyCollection::new($inSyncColumnValues->toArray() + $propertyValues->toArray());
+        $currentDatabaseColumnValues = ReadonlyCollection::create($inSyncColumnValues->toArray() + $propertyValues->toArray());
         
         $setEnumerator = $this->filterQueryParameters($queryType === "UPDATE" ? $outOfSyncColumnValues : $propertyValues);
 
@@ -237,7 +236,7 @@ trait TableRowTrait {
         
         if ($queryType == "UPDATE") {
             $whereEnumerator = ($autoIncrementingColumn === null) ? $currentDatabaseColumnValues :
-                ReadonlyCollection::new([$autoIncreamentingColumnName => $currentDatabaseColumnValues[$autoIncreamentingColumnName]]);
+                ReadonlyCollection::create([$autoIncreamentingColumnName => $currentDatabaseColumnValues[$autoIncreamentingColumnName]]);
 
             if ($whereEnumerator->isEmpty()) {
                 throw new InvalidStateException("to update a row, the row must have a primary key.");
@@ -280,7 +279,7 @@ trait TableRowTrait {
             }
 
             // replace the objects column values with the new column values
-            $this->dynamicPropertiesObjectTrait["propertyValues"] = ReadonlyCollection::new($newColumnValues);
+            $this->dynamicPropertiesObjectTrait["propertyValues"] = ReadonlyCollection::create($newColumnValues);
 
             if ($queryType == "UPDATE") {
                 // now that the values have been updated in the database we can clear the previous column values
@@ -426,7 +425,7 @@ trait TableRowTrait {
         }
 
         if (count($errors) === 0) {
-            $sql = "SELECT * FROM " . static::tableName() . " WHERE " . Enumerator::new($predicates)->
+            $sql = "SELECT * FROM " . static::tableName() . " WHERE " . Enumerable::create($predicates)->
                 select(fn($_, $key) => "$key = ?")->
                 join(" AND ");
 
@@ -478,7 +477,7 @@ trait TableRowTrait {
             $sql = "SELECT * FROM " . static::tableName();
 
             if (count($predicates) > 0) {
-                $sql .= " WHERE " . Enumerator::new($predicates)->
+                $sql .= " WHERE " . Enumerable::create($predicates)->
                     select(fn($_, $key) => "$key = ?")->
                     join(" AND ");
             }
@@ -486,7 +485,7 @@ trait TableRowTrait {
             try {
                 $result = static::db()->query($sql, $predicates->values()->toArray())->toArray();
 
-                $listOrException = ReadonlyCollection::new($result);
+                $listOrException = ReadonlyCollection::create($result);
                 return true;
 
             } catch (\Exception $e) {

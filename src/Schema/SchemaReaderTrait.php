@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Pst\Database\Schema;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\RewindableEnumerable;
+use Pst\Core\Enumerable\IRewindableEnumerable;
 
 use Pst\Database\Validator;
 
@@ -18,12 +18,12 @@ trait SchemaReaderTrait {
     /**
      * Loads sql Schemas
      * 
-     * @return IReadonlyCollection 
+     * @return IRewindableEnumerable 
      */
-    public function readSchemas(): IReadonlyCollection{
+    public function readSchemas(): IRewindableEnumerable{
         $key = "*";
         
-        return static::$schemaReaderTraitCache[$key] ??= new ReadonlyCollection (
+        return static::$schemaReaderTraitCache[$key] ??= RewindableEnumerable::create(
             $this->implReadSchemas()->toArray(function($v) { return $v->name(); }),
             Type::class(Schema::class)
         );
@@ -53,7 +53,7 @@ trait SchemaReaderTrait {
      * 
      * @param null|string $schemaName 
      * 
-     * @return IEnumerable|Schema 
+     * @return IRewindableEnumerable 
      */
-    protected abstract function implReadSchemas(?string $schemaName = null);
+    protected abstract function implReadSchemas(?string $schemaName = null): IRewindableEnumerable;
 }

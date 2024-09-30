@@ -6,39 +6,43 @@ namespace Pst\Database\Index;
 
 use Pst\Core\CoreObject;
 use Pst\Core\Types\TypeHintFactory;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\IRewindableEnumerable;
+use Pst\Core\Enumerable\RewindableEnumerable;
 
-use Pst\Database\Index\IndexType;
 use Pst\Database\Validator;
+use Pst\Database\Index\IndexType;
 
 use InvalidArgumentException;
 
-class Index extends CoreObject {
+class Index extends CoreObject  implements IIndex {
     private string $schemaName;
     private string $tableName;
     private string $name;
     
     private IndexType $type;
 
-    private array $columns;
+    private IRewindableEnumerable $columns;
     
-    public function __construct(string $schemaName, string $tableName, string $name, IndexType $type, array $columns) {
+    public function __construct(string $schemaName, string $tableName, string $name, IndexType $type, string ...$columns) {
         if (Validator::validateSchemaName($this->schemaName = $schemaName) !== true) {
-            throw new \InvalidArgumentException("Invalid schema name: '$schemaName'.");
+            throw new InvalidArgumentException("Invalid schema name: '$schemaName'.");
         }
 
         if (Validator::validateTableName($this->tableName = $tableName) !== true) {
-            throw new \InvalidArgumentException("Invalid table name: '$tableName'.");
+            throw new InvalidArgumentException("Invalid table name: '$tableName'.");
         }
 
         if (Validator::validateIndexName($this->name = $name) !== true) {
-            throw new \InvalidArgumentException("Invalid index name: '$name'.");
+            throw new InvalidArgumentException("Invalid index name: '$name'.");
+        }
+
+        if (count($columns) === 0) {
+            throw new InvalidArgumentException('No columns specified');
         }
 
         $this->type = $type;
 
-        $this->columns = array_map(function($column) {
+        $this->columns = RewindableEnumerable::create(array_map(function($column) {
             if (!is_string($column)) {
                 throw new InvalidArgumentException('Column name must be a string.');
             } else if (empty($column)) {
@@ -46,11 +50,7 @@ class Index extends CoreObject {
             }
 
             return $column;
-        }, $columns);
-
-        if (count($this->columns) === 0) {
-            throw new InvalidArgumentException('No columns specified');
-        }
+        }, $columns), TypeHintFactory::string());
     }
 
     public function schemaName(): string {
@@ -69,7 +69,7 @@ class Index extends CoreObject {
         return $this->type;
     }
 
-    public function columns(): IReadonlyCollection {
-        return ReadonlyCollection::new($this->columns, TypeHintFactory::string());
+    public function columns(): IRewindableEnumerable {
+        return $this->columns;
     }
 }

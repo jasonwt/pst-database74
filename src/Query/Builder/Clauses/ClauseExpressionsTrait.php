@@ -35,7 +35,7 @@ trait ClauseExpressionsTrait {
         }
 
         //$expressionConstructor = Func::new($expressionConstructor, TypeHintFactory::undefined(), TypeHintFactory::interface(true, static::getExpressionInterfaceType()->fullName()));
-        $expressionConstructor = Func::new($expressionConstructor, TypeHintFactory::undefined(), TypeUnion::new(Type::null(), static::getExpressionInterfaceType()));
+        $expressionConstructor = Func::new($expressionConstructor, TypeHintFactory::undefined(), TypeUnion::create(Type::null(), static::getExpressionInterfaceType()));
         
         if (isset(static::$expressionTraitConstructors[$name])) {
             throw new InvalidArgumentException("Expression parser already registered: $name");

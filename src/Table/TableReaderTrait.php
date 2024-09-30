@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Pst\Database\Table;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\RewindableEnumerable;
+use Pst\Core\Enumerable\IRewindableEnumerable;
 
 use Pst\Database\Validator;
 
 use InvalidArgumentException;
+
 
 trait TableReaderTrait {
     private static array $tableReaderTraitCache = [];
@@ -21,18 +22,18 @@ trait TableReaderTrait {
      * @param string $schemaName 
      * @param string $tableName 
      * 
-     * @return IReadonlyCollection 
+     * @return IRewindableEnumerable 
      * 
      * @throws InvalidArgumentException 
      */
-    public function readTables(string $schemaName): IReadonlyCollection {
+    public function readTables(string $schemaName): IRewindableEnumerable {
         if (!Validator::validateSchemaName($schemaName)) {
             throw new InvalidArgumentException("Invalid schema name.: '$schemaName'");
         }
 
         $key = trim($schemaName);
 
-        return static::$tableReaderTraitCache[$key] ??= new ReadonlyCollection (
+        return static::$tableReaderTraitCache[$key] ??= RewindableEnumerable::create(
             $this->implReadTables($schemaName)->toArray(function($v) { return $v->name(); }),
             Type::class(Table::class)
         );
@@ -66,7 +67,7 @@ trait TableReaderTrait {
      * @param string $schemaName 
      * @param null|string $tableName 
      * 
-     * @return IEnumerable|Table 
+     * @return IRewindableEnumerable 
      */
-    protected abstract function implReadTables(string $schemaName, ?string $tableName = null);
+    protected abstract function implReadTables(string $schemaName, ?string $tableName = null): IRewindableEnumerable;
 }

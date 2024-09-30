@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Pst\Database\Query\Builder;
 
 use Pst\Core\Types\Type;
-use Pst\Core\Enumerable\Enumerator;
+use Pst\Core\Enumerable\Enumerable;
 use Pst\Core\Enumerable\IEnumerable;
 
 use Pst\Database\Query\IQuery;
@@ -97,7 +97,7 @@ trait QueryBuilderTrait {
     }
 
     public function getClauses(): IEnumerable {
-        return Enumerator::new($this->queryBuilderTraitClauses, Type::interface(IClause::class));
+        return Enumerable::create($this->queryBuilderTraitClauses, Type::interface(IClause::class));
     }
 
     public function getIdentifiers(): array {
@@ -119,8 +119,8 @@ trait QueryBuilderTrait {
                 $clauseIdentifiers[$key] += $value;
             }
 
-            if (Enumerator::new($clauseIdentifiers)->any(fn($v) => !empty($v))) {
-                $identifiers[$clauseClassName] = Enumerator::new($clauseIdentifiers)->where(fn($v, $k) => !empty($v))->toArray();
+            if (Enumerable::create($clauseIdentifiers)->any(fn($v) => !empty($v))) {
+                $identifiers[$clauseClassName] = Enumerable::create($clauseIdentifiers)->where(fn($v, $k) => !empty($v))->toArray();
             }
         }
         

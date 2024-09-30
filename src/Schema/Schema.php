@@ -6,38 +6,33 @@ namespace Pst\Database\Schema;
 
 use Pst\Core\CoreObject;
 use Pst\Core\Types\Type;
-use Pst\Core\Collections\ReadonlyCollection;
-use Pst\Core\Collections\IReadonlyCollection;
+use Pst\Core\Enumerable\IRewindableEnumerable;
+use Pst\Core\Enumerable\RewindableEnumerable;
 
 use Pst\Database\Validator;
-use Pst\Database\Table\Table;
+use Pst\Database\Table\ITable;
 
 use InvalidArgumentException;
 
-class Schema extends CoreObject {
+
+class Schema extends CoreObject implements ISchema {
     private string $name;
 
-    private IReadonlyCollection $tables;
+    private IRewindableEnumerable $tables;
     
-    public function __construct(string $name, array $tables = []) {
+    public function __construct(string $name, iterable $tables = []) {
         if (Validator::validateSchemaName($this->name = $name) !== true) {
-            throw new \InvalidArgumentException("Invalid schema name: '$name'.");
+            throw new InvalidArgumentException("Invalid schema name: '$name'.");
         }
 
-        $this->tables = ReadonlyCollection::new(array_map($tables, function($table) {
-            if (!$table instanceof Table) {
-                throw new InvalidArgumentException('Table must be an instance of Table.');
-            }
-
-            return $table;
-        }), Type::class(Table::class));
+        $this->tables = RewindableEnumerable::create($tables, Type::class(ITable::class), Type::string());
     }
 
     public function name(): string {
         return $this->name;
     }
 
-    public function tables(): IReadonlyCollection {
-        return ReadonlyCollection::new($this->tables, Type::class(Table::class));
+    public function tables(): IRewindableEnumerable {
+        return RewindableEnumerable::create($this->tables, Type::class(ITable::class));
     }
 }
